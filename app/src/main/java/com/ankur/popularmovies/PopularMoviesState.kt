@@ -2,15 +2,14 @@ package com.ankur.popularmovies
 
 data class PopularMoviesState(
     val fetchAction: FetchAction,
+    val movies: List<Movie>,
     val error: Error?
 )
 
 enum class FetchAction {
   IN_PROGRESS,
 
+  FETCH_SUCCESSFUL,
+
   FETCH_FAILED
 }
-
-data class Error(
-    val code: Int
-)
