@@ -13,11 +13,16 @@ class PopularMoviesModelTests {
     val lifecycle = PublishSubject.create<MviLifecycle>()
     val moviesApi = mock(MoviesApi::class.java)
 
+    val searchIntention = PublishSubject.create<String>()
+    val intentions = PopularMoviesIntentions(searchIntention)
+
     `when`(moviesApi.getMovies())
         .thenReturn(Observable.error(SocketTimeoutException()))
 
+    val states = PublishSubject.create<PopularMoviesState>()
+
     val observer = PopularMoviesModel
-        .bind(lifecycle, moviesApi)
+        .bind(lifecycle, moviesApi, intentions, states)
         .test()
 
     // Act
@@ -28,8 +33,8 @@ class PopularMoviesModelTests {
 
     observer.assertNoErrors()
     observer.assertValues(
-        PopularMoviesState(FetchAction.IN_PROGRESS, emptyList(), null),
-        PopularMoviesState(FetchAction.FETCH_FAILED, emptyList(), error)
+        PopularMoviesState(FetchAction.IN_PROGRESS, emptyList(), emptyList(), null),
+        PopularMoviesState(FetchAction.FETCH_FAILED, emptyList(), emptyList(), error)
     )
   }
 
@@ -38,15 +43,19 @@ class PopularMoviesModelTests {
     val lifecycle = PublishSubject.create<MviLifecycle>()
     val moviesApi = mock(MoviesApi::class.java)
     val movies = listOf(
-        Movie("1"),
-        Movie("2")
+        Movie(1, "abc", "cde"),
+        Movie(2, "abc", "cde")
     )
+    val searchIntention = PublishSubject.create<String>()
+    val intentions = PopularMoviesIntentions(searchIntention)
 
     `when`(moviesApi.getMovies())
         .thenReturn(Observable.just(movies))
 
+    val states = PublishSubject.create<PopularMoviesState>()
+
     val observer = PopularMoviesModel
-        .bind(lifecycle, moviesApi)
+        .bind(lifecycle, moviesApi, intentions, states)
         .test()
 
     // Act
@@ -55,8 +64,46 @@ class PopularMoviesModelTests {
     // Assert
     observer.assertNoErrors()
     observer.assertValues(
-        PopularMoviesState(FetchAction.IN_PROGRESS, emptyList(), null),
-        PopularMoviesState(FetchAction.FETCH_SUCCESSFUL, movies, null)
+        PopularMoviesState(FetchAction.IN_PROGRESS, emptyList(), emptyList(), null),
+        PopularMoviesState(FetchAction.FETCH_SUCCESSFUL, movies, emptyList(), null)
     )
+  }
+
+  @Test fun `user search the movie by name and search succeeds`(){
+    // Setup
+    val lifecycle = PublishSubject.create<MviLifecycle>()
+    val moviesApi = mock(MoviesApi::class.java)
+    val movies = listOf(
+        Movie(1, "Race 3", "cde"),
+        Movie(2, "abc", "cde")
+    )
+    val filteredMovies = listOf(
+        Movie(1, "Race 3", "cde")
+    )
+
+    val searchIntention = PublishSubject.create<String>()
+    val intentions = PopularMoviesIntentions(searchIntention)
+
+    `when`(moviesApi.getMovies())
+        .thenReturn(Observable.just(movies))
+
+    val states = PublishSubject.create<PopularMoviesState>()
+
+    val observer = PopularMoviesModel
+        .bind(lifecycle, moviesApi, intentions, states)
+        .doOnNext { states.onNext(it) }
+        .test()
+
+    // Act
+    lifecycle.onNext(MviLifecycle.CREATED)
+    searchIntention.onNext("Race 3")
+
+    // Assert
+    observer.assertNoErrors()
+        .assertValues(
+            PopularMoviesState(FetchAction.IN_PROGRESS, emptyList(), emptyList(), null),
+            PopularMoviesState(FetchAction.FETCH_SUCCESSFUL, movies, emptyList(), null),
+            PopularMoviesState(FetchAction.FETCH_SUCCESSFUL, movies, filteredMovies, null)
+        )
   }
 }

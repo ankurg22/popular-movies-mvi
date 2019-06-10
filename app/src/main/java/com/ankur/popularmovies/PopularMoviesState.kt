@@ -3,6 +3,7 @@ package com.ankur.popularmovies
 data class PopularMoviesState(
     val fetchAction: FetchAction,
     val movies: List<Movie>,
+    val searchedMovies: List<Movie>,
     val error: Error?
 )
 
