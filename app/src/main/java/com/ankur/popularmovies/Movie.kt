@@ -13,7 +13,7 @@ data class Movie(
     val poster: String
 )
 
-data class MovieWrapper(
+data class MoviesResponse(
     @SerializedName("results")
     val movies: List<Movie>
 )

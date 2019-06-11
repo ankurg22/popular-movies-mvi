@@ -6,41 +6,50 @@ import java.io.IOException
 
 object PopularMoviesModel {
   fun bind(
-      lifecycle: Observable<MviLifecycle>,
-      moviesApi: MoviesApi,
-      intentions: PopularMoviesIntentions,
-      states: Observable<PopularMoviesState>
+    lifecycle: Observable<MviLifecycle>,
+    moviesApi: MoviesApi,
+    intentions: PopularMoviesIntentions,
+    states: Observable<PopularMoviesState>
   ): Observable<PopularMoviesState> {
     val lifecycleState = lifecycle
-        .filter { it == MviLifecycle.CREATED }
-        .switchMap {
-          val inProgressState = Observable.just(PopularMoviesState(FetchAction.IN_PROGRESS, emptyList(), emptyList(), null))
+      .filter { it == MviLifecycle.CREATED }
+      .switchMap {
+        val inProgressState =
+          Observable.just(PopularMoviesState(FetchAction.IN_PROGRESS, emptyList(), emptyList(), null))
 
-          val networkStates = moviesApi
-              .getMovies()
-              .map { movies -> PopularMoviesState(FetchAction.FETCH_SUCCESSFUL, movies, emptyList(), null) }
-              .onErrorReturn { throwable -> PopularMoviesState(FetchAction.FETCH_FAILED, emptyList(), emptyList(), parseNetworkError(throwable)) }
+        val networkStates = moviesApi
+          .getTopRatedMovies()
+          .map { it.movies }
+          .map { movies -> PopularMoviesState(FetchAction.FETCH_SUCCESSFUL, movies, emptyList(), null) }
+          .onErrorReturn { throwable ->
+            PopularMoviesState(
+              FetchAction.FETCH_FAILED,
+              emptyList(),
+              emptyList(),
+              parseNetworkError(throwable)
+            )
+          }
 
-          return@switchMap Observable.concat(
-              inProgressState,
-              networkStates
-          )
-        }
+        return@switchMap Observable.concat(
+          inProgressState,
+          networkStates
+        )
+      }
 
     val searchState = intentions
-        .searchIntention()
-        .withLatestFrom(states)
-        .map {(query, state) ->
-          val allMovies = state.movies
-          val filteredList = allMovies
-              .filter { it.title.startsWith(query, true) }
-              .toList()
-          state.copy(searchedMovies = filteredList)
-        }
+      .searchIntention()
+      .withLatestFrom(states)
+      .map { (query, state) ->
+        val allMovies = state.movies
+        val filteredList = allMovies
+          .filter { it.title.startsWith(query, true) }
+          .toList()
+        state.copy(searchedMovies = filteredList)
+      }
 
     return Observable.merge(
-        lifecycleState,
-        searchState
+      lifecycleState,
+      searchState
     )
   }
 
