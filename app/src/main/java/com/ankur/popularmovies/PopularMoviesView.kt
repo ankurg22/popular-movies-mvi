@@ -11,6 +11,15 @@ interface PopularMoviesView {
     fun showError(error: Error)
 
     fun render(state: PopularMoviesState) {
-        showProgress()
+        when (state.fetchAction) {
+            FetchAction.IN_PROGRESS -> {
+                showProgress()
+            }
+
+            FetchAction.FETCH_SUCCESSFUL -> {
+                hideProgress()
+                showResults(state.movies)
+            }
+        }
     }
 }

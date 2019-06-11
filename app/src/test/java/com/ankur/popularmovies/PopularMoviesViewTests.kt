@@ -24,4 +24,20 @@ class PopularMoviesViewTests {
         verify(view, never()).showResults(any())
         verify(view, never()).hideProgress()
     }
+
+    @Test
+    fun `fetching is successful and UI displays a list`() {
+        // act
+        val movies = listOf(
+            Movie(1, "asd", "asda")
+        )
+
+        view.render(PopularMoviesState(FetchAction.FETCH_SUCCESSFUL, movies, emptyList(), null))
+
+        // assert
+        verify(view).hideProgress()
+        verify(view).showResults(movies)
+        verify(view, never()).showError(any())
+        verify(view, never()).showProgress()
+    }
 }
