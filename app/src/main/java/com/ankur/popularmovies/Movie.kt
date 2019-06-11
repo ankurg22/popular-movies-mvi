@@ -1,7 +1,19 @@
 package com.ankur.popularmovies
 
+import com.google.gson.annotations.SerializedName
+
 data class Movie(
+    @SerializedName("id")
     val id: Int,
+
+    @SerializedName("original_title")
     val title: String,
-    val backdrop: String
+
+    @SerializedName("poster_path")
+    val poster: String
+)
+
+data class MovieWrapper(
+    @SerializedName("results")
+    val movies: List<Movie>
 )
