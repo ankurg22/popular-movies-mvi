@@ -17,8 +17,12 @@ interface PopularMoviesView {
             }
 
             FetchAction.FETCH_SUCCESSFUL -> {
-                hideProgress()
-                showResults(state.movies)
+                if (state.searchedMovies.isNotEmpty() and state.movies.isNotEmpty()) {
+                    showResults(state.searchedMovies)
+                } else {
+                    hideProgress()
+                    showResults(state.movies)
+                }
             }
 
             FetchAction.FETCH_FAILED -> {
