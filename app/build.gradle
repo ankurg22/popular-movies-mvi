@@ -38,6 +38,12 @@ dependencies {
     implementation 'io.reactivex.rxjava2:rxkotlin:2.3.0'
     implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
 
+    // Retrofit
+    implementation 'com.squareup.retrofit2:retrofit:2.5.0'
+
+    // Gson
+    implementation 'com.squareup.retrofit2:converter-gson:2.5.0'
+
     // Google Truth
     testImplementation "com.google.truth:truth:0.44"
 
