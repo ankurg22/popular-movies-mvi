@@ -40,4 +40,19 @@ class PopularMoviesViewTests {
         verify(view, never()).showError(any())
         verify(view, never()).showProgress()
     }
+
+    @Test
+    fun `fetching failed and UI displays an error`() {
+        // act
+        val error = Error(ErrorType.CONNECTION)
+
+        view.render(PopularMoviesState(FetchAction.FETCH_FAILED, emptyList(), emptyList(), error))
+
+        // assert
+        verify(view).hideProgress()
+        verify(view).showError(error)
+        verify(view, never()).showResults(any())
+        verify(view, never()).showProgress()
+
+    }
 }

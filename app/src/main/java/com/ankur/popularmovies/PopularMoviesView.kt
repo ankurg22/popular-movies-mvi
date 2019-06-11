@@ -20,6 +20,11 @@ interface PopularMoviesView {
                 hideProgress()
                 showResults(state.movies)
             }
+
+            FetchAction.FETCH_FAILED -> {
+                hideProgress()
+                state.error?.let { showError(it) }
+            }
         }
     }
 }
