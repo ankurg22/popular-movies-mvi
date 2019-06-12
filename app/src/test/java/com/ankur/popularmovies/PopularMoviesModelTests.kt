@@ -1,30 +1,44 @@
 package com.ankur.popularmovies
 
 import io.reactivex.Observable
+import io.reactivex.observers.TestObserver
 import io.reactivex.subjects.PublishSubject
+import org.junit.Before
 import org.junit.Test
 import org.mockito.Mockito.`when`
 import org.mockito.Mockito.mock
 import java.net.SocketTimeoutException
 
 class PopularMoviesModelTests {
+  private lateinit var lifecycle: PublishSubject<MviLifecycle>
+  private lateinit var moviesApi: MoviesApi
+
+  private lateinit var searchQueryChanges: PublishSubject<String>
+  private lateinit var retryClicks: PublishSubject<Unit>
+  private lateinit var intentions: PopularMoviesIntentions
+  private lateinit var states: PublishSubject<PopularMoviesState>
+  private lateinit var observer: TestObserver<PopularMoviesState>
+
+  @Before fun setup() {
+    lifecycle = PublishSubject.create()
+    moviesApi = mock(MoviesApi::class.java)
+
+    searchQueryChanges = PublishSubject.create()
+    retryClicks = PublishSubject.create()
+    intentions = PopularMoviesIntentions(searchQueryChanges, retryClicks)
+
+    states = PublishSubject.create<PopularMoviesState>()
+
+    observer = PopularMoviesModel
+      .bind(lifecycle, moviesApi, intentions, states)
+      .doOnNext { states.onNext(it) }
+      .test()
+  }
+
   @Test fun `user sees an error when fetching movies fails`() {
     // Setup
-    val lifecycle = PublishSubject.create<MviLifecycle>()
-    val moviesApi = mock(MoviesApi::class.java)
-
-    val searchIntention = PublishSubject.create<String>()
-    val retryIntention = PublishSubject.create<Unit>()
-    val intentions = PopularMoviesIntentions(searchIntention, retryIntention)
-
     `when`(moviesApi.getTopRatedMovies())
       .thenReturn(Observable.error(SocketTimeoutException()))
-
-    val states = PublishSubject.create<PopularMoviesState>()
-
-    val observer = PopularMoviesModel
-      .bind(lifecycle, moviesApi, intentions, states)
-      .test()
 
     // Act
     lifecycle.onNext(MviLifecycle.CREATED)
@@ -41,25 +55,13 @@ class PopularMoviesModelTests {
 
   @Test fun `user sees a list of movies when fetching movies succeeds`() {
     // Setup
-    val lifecycle = PublishSubject.create<MviLifecycle>()
-    val moviesApi = mock(MoviesApi::class.java)
     val movies = listOf(
       Movie(1, "abc", "cde"),
       Movie(2, "abc", "cde")
     )
-    val searchIntention = PublishSubject.create<String>()
-    val retryIntention = PublishSubject.create<Unit>()
-    val intentions = PopularMoviesIntentions(searchIntention, retryIntention)
-
     val moviesResponse = MoviesResponse(movies)
     `when`(moviesApi.getTopRatedMovies())
       .thenReturn(Observable.just(moviesResponse))
-
-    val states = PublishSubject.create<PopularMoviesState>()
-
-    val observer = PopularMoviesModel
-      .bind(lifecycle, moviesApi, intentions, states)
-      .test()
 
     // Act
     lifecycle.onNext(MviLifecycle.CREATED)
@@ -74,8 +76,6 @@ class PopularMoviesModelTests {
 
   @Test fun `user search the movie by name and search succeeds`() {
     // Setup
-    val lifecycle = PublishSubject.create<MviLifecycle>()
-    val moviesApi = mock(MoviesApi::class.java)
     val movies = listOf(
       Movie(1, "Race 3", "cde"),
       Movie(2, "abc", "cde")
@@ -84,24 +84,13 @@ class PopularMoviesModelTests {
       Movie(1, "Race 3", "cde")
     )
 
-    val searchIntention = PublishSubject.create<String>()
-    val retryIntention = PublishSubject.create<Unit>()
-    val intentions = PopularMoviesIntentions(searchIntention, retryIntention)
-
     val moviesResponse = MoviesResponse(movies)
     `when`(moviesApi.getTopRatedMovies())
       .thenReturn(Observable.just(moviesResponse))
 
-    val states = PublishSubject.create<PopularMoviesState>()
-
-    val observer = PopularMoviesModel
-      .bind(lifecycle, moviesApi, intentions, states)
-      .doOnNext { states.onNext(it) }
-      .test()
-
     // Act
     lifecycle.onNext(MviLifecycle.CREATED)
-    searchIntention.onNext("Race 3")
+    searchQueryChanges.onNext("Race 3")
 
     // Assert
     observer.assertNoErrors()
@@ -114,32 +103,18 @@ class PopularMoviesModelTests {
 
   @Test fun `user hits retry loading movies after error`() {
     // setup
-    val lifecycle = PublishSubject.create<MviLifecycle>()
-    val moviesApi = mock(MoviesApi::class.java)
     val movies = listOf(
       Movie(1, "Race 3", "cde"),
       Movie(2, "abc", "cde")
     )
-
-    val searchIntention = PublishSubject.create<String>()
-    val retryIntention = PublishSubject.create<Unit>()
-    val intentions = PopularMoviesIntentions(searchIntention, retryIntention)
-
     val moviesResponse = MoviesResponse(movies)
     `when`(moviesApi.getTopRatedMovies())
       .thenReturn(Observable.error(SocketTimeoutException()))
       .thenReturn(Observable.just(moviesResponse))
 
-    val states = PublishSubject.create<PopularMoviesState>()
-
-    val observer = PopularMoviesModel
-      .bind(lifecycle, moviesApi, intentions, states)
-      .doOnNext { states.onNext(it) }
-      .test()
-
     // Act
     lifecycle.onNext(MviLifecycle.CREATED)
-    retryIntention.onNext(Unit)
+    retryClicks.onNext(Unit)
 
     // Assert
     val error = Error(ErrorType.CONNECTION)
@@ -153,29 +128,17 @@ class PopularMoviesModelTests {
       )
   }
 
-  @Test fun `user sees movie list without loading again when UI is restored`(){
+  @Test
+  fun `user sees movie list without loading again when UI is restored`() {
     // Setup
-    val lifecycle = PublishSubject.create<MviLifecycle>()
-    val moviesApi = mock(MoviesApi::class.java)
     val movies = listOf(
       Movie(1, "Race 3", "cde"),
       Movie(2, "abc", "cde")
     )
 
-    val searchIntention = PublishSubject.create<String>()
-    val retryIntention = PublishSubject.create<Unit>()
-    val intentions = PopularMoviesIntentions(searchIntention, retryIntention)
-
     val moviesResponse = MoviesResponse(movies)
     `when`(moviesApi.getTopRatedMovies())
       .thenReturn(Observable.just(moviesResponse))
-
-    val states = PublishSubject.create<PopularMoviesState>()
-
-    val observer = PopularMoviesModel
-      .bind(lifecycle, moviesApi, intentions, states)
-      .doOnNext { states.onNext(it) }
-      .test()
 
     // Act
     lifecycle.onNext(MviLifecycle.CREATED)
