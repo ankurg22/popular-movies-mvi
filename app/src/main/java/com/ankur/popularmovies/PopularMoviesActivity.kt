@@ -20,7 +20,8 @@ class PopularMoviesActivity : AppCompatActivity(), PopularMoviesView {
   private lateinit var lifecycleEvent: MviLifecycle
   private val moviesApi = MoviesClient.getInstance().create(MoviesApi::class.java)
   private val searchIntention = PublishSubject.create<String>()
-  private val intentions by lazy { PopularMoviesIntentions(searchIntention) }
+  private val retryIntention = PublishSubject.create<Unit>()
+  private val intentions by lazy { PopularMoviesIntentions(searchIntention, retryIntention) }
 
   private val states = BehaviorSubject.create<PopularMoviesState>()
 
@@ -90,14 +91,14 @@ class PopularMoviesActivity : AppCompatActivity(), PopularMoviesView {
       ErrorType.CONNECTION -> {
         Snackbar.make(rootLayout, R.string.error_conncection, Snackbar.LENGTH_INDEFINITE)
           .setAction(R.string.action_retry) {
-            // TODO()
+            retryIntention.onNext(Unit)
           }
           .show()
       }
       ErrorType.UNKNOWN -> {
         Snackbar.make(rootLayout, R.string.error_unknown, Snackbar.LENGTH_INDEFINITE)
           .setAction(R.string.action_retry) {
-            // TODO()
+            retryIntention.onNext(Unit)
           }
           .show()
       }
