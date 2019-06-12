@@ -34,7 +34,7 @@ class MoviesAdapter(private val movies: ArrayList<Movie>) : RecyclerView.Adapter
       itemView.movieNameTextView.text = movie.title
       Picasso
           .get()
-          .load(movie.poster)
+          .load(BASE_IMAGE_URL + movie.poster)
           .into(itemView.posterImageView)
     }
   }
