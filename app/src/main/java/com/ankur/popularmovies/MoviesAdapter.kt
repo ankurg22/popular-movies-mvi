@@ -25,6 +25,7 @@ class MoviesAdapter(private val movies: ArrayList<Movie>) : RecyclerView.Adapter
   }
 
   fun addData(movies: List<Movie>) {
+    this.movies.clear()
     this.movies.addAll(movies)
   }
 

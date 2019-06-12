@@ -3,12 +3,12 @@ package com.ankur.popularmovies
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.SearchView
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.snackbar.Snackbar
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.addTo
-import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
 import kotlinx.android.synthetic.main.activity_popular_movies.*
@@ -20,7 +20,7 @@ class PopularMoviesActivity : AppCompatActivity(), PopularMoviesView {
   private lateinit var lifecycleEvent: MviLifecycle
   private val moviesApi = MoviesClient.getInstance().create(MoviesApi::class.java)
   private val searchIntention = PublishSubject.create<String>()
-  private val intentions = PopularMoviesIntentions(searchIntention)
+  private val intentions by lazy { PopularMoviesIntentions(searchIntention) }
 
   private val states = BehaviorSubject.create<PopularMoviesState>()
 
@@ -32,6 +32,22 @@ class PopularMoviesActivity : AppCompatActivity(), PopularMoviesView {
 
     movieRecyclerView.layoutManager = LinearLayoutManager(this)
     movieRecyclerView.adapter = movieAdapter
+
+    movieSearchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+      override fun onQueryTextSubmit(query: String?): Boolean {
+        query?.let {
+          searchIntention.onNext(it)
+        }
+        return true
+      }
+
+      override fun onQueryTextChange(newText: String?): Boolean {
+        newText?.let {
+          searchIntention.onNext(it)
+        }
+        return true
+      }
+    })
 
     lifecycleEvent = MviLifecycle.CREATED
   }
