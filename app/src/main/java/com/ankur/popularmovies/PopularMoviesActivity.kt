@@ -1,7 +1,6 @@
 package com.ankur.popularmovies
 
 import android.os.Bundle
-import android.os.PersistableBundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
@@ -87,7 +86,7 @@ class PopularMoviesActivity : AppCompatActivity(), PopularMoviesView {
   }
 
   override fun showResults(movies: List<Movie>) {
-    movieAdapter.addData(movies)
+    movieAdapter.updateMovies(movies)
     movieAdapter.notifyDataSetChanged()
   }
 

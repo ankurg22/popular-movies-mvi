@@ -24,7 +24,7 @@ class MoviesAdapter(private val movies: ArrayList<Movie>) : RecyclerView.Adapter
     return movies.size
   }
 
-  fun addData(movies: List<Movie>) {
+  fun updateMovies(movies: List<Movie>) {
     this.movies.clear()
     this.movies.addAll(movies)
   }
