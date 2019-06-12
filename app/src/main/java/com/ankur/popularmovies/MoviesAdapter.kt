@@ -9,7 +9,6 @@ import kotlinx.android.synthetic.main.list_item_movie.view.movieNameTextView
 import kotlinx.android.synthetic.main.list_item_movie.view.posterImageView
 
 class MoviesAdapter(private val movies: ArrayList<Movie>) : RecyclerView.Adapter<MoviesAdapter.MoviesViewHolder>() {
-
   override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MoviesViewHolder {
     val view = LayoutInflater.from(parent.context)
       .inflate(R.layout.list_item_movie, parent, false)
@@ -28,10 +27,10 @@ class MoviesAdapter(private val movies: ArrayList<Movie>) : RecyclerView.Adapter
   fun updateMovies(movies: List<Movie>) {
     this.movies.clear()
     this.movies.addAll(movies)
+    this.notifyDataSetChanged()
   }
 
   class MoviesViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-
     fun bindMovie(movie: Movie) {
       itemView.movieNameTextView.text = movie.title
       Picasso

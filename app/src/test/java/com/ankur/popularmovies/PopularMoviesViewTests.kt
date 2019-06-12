@@ -10,69 +10,65 @@ import org.mockito.junit.MockitoJUnitRunner
 
 @RunWith(MockitoJUnitRunner::class)
 class PopularMoviesViewTests {
-    @Spy
-    private lateinit var view: SpyablePopularMoviesView
+  @Spy
+  private lateinit var view: SpyablePopularMoviesView
 
-    @Test
-    fun `fetching in progress and UI is displaying progress bar`() {
-        // act
-        view.render(PopularMoviesState(FetchAction.IN_PROGRESS, emptyList(), emptyList(), null))
+  @Test fun `fetching in progress and UI is displaying progress bar`() {
+    // act
+    view.render(PopularMoviesState(FetchAction.IN_PROGRESS, emptyList(), emptyList(), null))
 
-        //assert
-        verify(view).showProgress(true)
-        verify(view, never()).showError(any())
-        verify(view, never()).showResults(any())
-        verify(view, never()).showProgress(false)
-    }
+    //assert
+    verify(view).showProgress(true)
+    verify(view, never()).showError(any())
+    verify(view, never()).showResults(any())
+    verify(view, never()).showProgress(false)
+  }
 
-    @Test
-    fun `fetching is successful and UI displays a list`() {
-        // act
-        val movies = listOf(
-            Movie(1, "asd", "asda")
-        )
+  @Test fun `fetching is successful and UI displays a list`() {
+    // act
+    val movies = listOf(
+      Movie(1, "asd", "asda")
+    )
 
-        view.render(PopularMoviesState(FetchAction.FETCH_SUCCESSFUL, movies, emptyList(), null))
+    view.render(PopularMoviesState(FetchAction.FETCH_SUCCESSFUL, movies, emptyList(), null))
 
-        // assert
-        verify(view).showProgress(false)
-        verify(view).showResults(movies)
-        verify(view, never()).showError(any())
-        verify(view, never()).showProgress(true)
-    }
+    // assert
+    verify(view).showProgress(false)
+    verify(view).showResults(movies)
+    verify(view, never()).showError(any())
+    verify(view, never()).showProgress(true)
+  }
 
-    @Test
-    fun `fetching failed and UI displays an error`() {
-        // act
-        val error = Error(ErrorType.CONNECTION)
+  @Test fun `fetching failed and UI displays an error`() {
+    // act
+    val error = Error(ErrorType.CONNECTION)
 
-        view.render(PopularMoviesState(FetchAction.FETCH_FAILED, emptyList(), emptyList(), error))
+    view.render(PopularMoviesState(FetchAction.FETCH_FAILED, emptyList(), emptyList(), error))
 
-        // assert
-        verify(view).showProgress(false)
-        verify(view).showError(error)
-        verify(view, never()).showResults(any())
-        verify(view, never()).showProgress(true)
+    // assert
+    verify(view).showProgress(false)
+    verify(view).showError(error)
+    verify(view, never()).showResults(any())
+    verify(view, never()).showProgress(true)
 
-    }
+  }
 
-    @Test
-    fun `user search by movie name and UI displays a list`() {
-        // act
-        val movies = listOf(
-            Movie(2, "fdfas", "adfa"),
-            Movie(2, "fdfas", "adfa"),
-            Movie(2, "fdfas", "adfa")
-        )
-        val searchedMovies = listOf(
-            Movie(2, "fdfas", "adfa")
-        )
-        view.render(PopularMoviesState(FetchAction.FETCH_SUCCESSFUL, movies, searchedMovies, null))
+  @Test fun `user search by movie name and UI displays a list`() {
+    // act
+    val movies = listOf(
+      Movie(2, "fdfas", "adfa"),
+      Movie(2, "fdfas", "adfa"),
+      Movie(2, "fdfas", "adfa")
+    )
+    val searchedMovies = listOf(
+      Movie(2, "fdfas", "adfa")
+    )
+    view.render(PopularMoviesState(FetchAction.FETCH_SUCCESSFUL, movies, searchedMovies, null))
 
-        // assert
-        verify(view).showResults(searchedMovies)
-        verify(view, never()).showProgress(true)
-        verify(view, never()).showError(any())
-        verify(view, never()).showProgress(false)
-    }
+    // assert
+    verify(view).showResults(searchedMovies)
+    verify(view, never()).showProgress(true)
+    verify(view, never()).showError(any())
+    verify(view, never()).showProgress(false)
+  }
 }

@@ -3,10 +3,10 @@ package com.ankur.popularmovies
 import io.reactivex.Observable
 
 class PopularMoviesIntentions(
-  private val search: Observable<String>,
-  private val retry: Observable<Unit>
+  private val searchQueryChanges: Observable<String>,
+  private val retryClicks: Observable<Unit>
 ) {
-  fun search() = search
+  fun search() = searchQueryChanges
 
-  fun retryClicks() = retry
+  fun retryClicks() = retryClicks
 }
