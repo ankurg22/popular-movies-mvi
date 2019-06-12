@@ -1,7 +1,10 @@
 package com.ankur.popularmovies
 
-import io.reactivex.subjects.PublishSubject
+import io.reactivex.Observable
 
-class PopularMoviesIntentions(val searchIntention: PublishSubject<String>) {
+class PopularMoviesIntentions(val searchIntention: Observable<String>,
+                              val retryIntention: Observable<Unit>) {
   fun searchIntention() = searchIntention
+
+  fun retryIntention() = retryIntention
 }

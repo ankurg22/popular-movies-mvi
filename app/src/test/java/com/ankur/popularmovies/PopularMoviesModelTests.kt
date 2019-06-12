@@ -8,14 +8,14 @@ import org.mockito.Mockito.mock
 import java.net.SocketTimeoutException
 
 class PopularMoviesModelTests {
-  @Test
-  fun `user sees an error when fetching movies fails`() {
+  @Test fun `user sees an error when fetching movies fails`() {
     // Setup
     val lifecycle = PublishSubject.create<MviLifecycle>()
     val moviesApi = mock(MoviesApi::class.java)
 
     val searchIntention = PublishSubject.create<String>()
-    val intentions = PopularMoviesIntentions(searchIntention)
+    val retryIntention = PublishSubject.create<Unit>()
+    val intentions = PopularMoviesIntentions(searchIntention, retryIntention)
 
     `when`(moviesApi.getTopRatedMovies())
       .thenReturn(Observable.error(SocketTimeoutException()))
@@ -39,8 +39,7 @@ class PopularMoviesModelTests {
     )
   }
 
-  @Test
-  fun `user sees a list of movies when fetching movies succeeds`() {
+  @Test fun `user sees a list of movies when fetching movies succeeds`() {
     // Setup
     val lifecycle = PublishSubject.create<MviLifecycle>()
     val moviesApi = mock(MoviesApi::class.java)
@@ -49,7 +48,8 @@ class PopularMoviesModelTests {
       Movie(2, "abc", "cde")
     )
     val searchIntention = PublishSubject.create<String>()
-    val intentions = PopularMoviesIntentions(searchIntention)
+    val retryIntention = PublishSubject.create<Unit>()
+    val intentions = PopularMoviesIntentions(searchIntention, retryIntention)
 
     val moviesResponse = MoviesResponse(movies)
     `when`(moviesApi.getTopRatedMovies())
@@ -85,7 +85,8 @@ class PopularMoviesModelTests {
     )
 
     val searchIntention = PublishSubject.create<String>()
-    val intentions = PopularMoviesIntentions(searchIntention)
+    val retryIntention = PublishSubject.create<Unit>()
+    val intentions = PopularMoviesIntentions(searchIntention, retryIntention)
 
     val moviesResponse = MoviesResponse(movies)
     `when`(moviesApi.getTopRatedMovies())
@@ -108,6 +109,41 @@ class PopularMoviesModelTests {
         PopularMoviesState(FetchAction.IN_PROGRESS, emptyList(), emptyList(), null),
         PopularMoviesState(FetchAction.FETCH_SUCCESSFUL, movies, emptyList(), null),
         PopularMoviesState(FetchAction.FETCH_SUCCESSFUL, movies, filteredMovies, null)
+      )
+  }
+
+  @Test fun `user hits retry loading movies after error`() {
+    // setup
+    val lifecycle = PublishSubject.create<MviLifecycle>()
+    val moviesApi = mock(MoviesApi::class.java)
+    val movies = listOf(
+      Movie(1, "Race 3", "cde"),
+      Movie(2, "abc", "cde")
+    )
+
+    val searchIntention = PublishSubject.create<String>()
+    val retryIntention = PublishSubject.create<Unit>()
+    val intentions = PopularMoviesIntentions(searchIntention, retryIntention)
+
+    val moviesResponse = MoviesResponse(movies)
+    `when`(moviesApi.getTopRatedMovies())
+      .thenReturn(Observable.just(moviesResponse))
+
+    val states = PublishSubject.create<PopularMoviesState>()
+
+    val observer = PopularMoviesModel
+      .bind(lifecycle, moviesApi, intentions, states)
+      .doOnNext { states.onNext(it) }
+      .test()
+
+    // Act
+    retryIntention.onNext(Unit)
+
+    // Assert
+    observer.assertNoErrors()
+      .assertValues(
+        PopularMoviesState(FetchAction.IN_PROGRESS, emptyList(), emptyList(), null),
+        PopularMoviesState(FetchAction.FETCH_SUCCESSFUL, movies, emptyList(), null)
       )
   }
 }

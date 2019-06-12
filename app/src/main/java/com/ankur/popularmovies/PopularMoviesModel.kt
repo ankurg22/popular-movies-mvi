@@ -36,6 +36,31 @@ object PopularMoviesModel {
         )
       }
 
+    val retryState = intentions
+      .retryIntention()
+      .switchMap {
+        val inProgressState =
+          Observable.just(PopularMoviesState(FetchAction.IN_PROGRESS, emptyList(), emptyList(), null))
+
+        val networkStates = moviesApi
+          .getTopRatedMovies()
+          .map { it.movies }
+          .map { movies -> PopularMoviesState(FetchAction.FETCH_SUCCESSFUL, movies, emptyList(), null) }
+          .onErrorReturn { throwable ->
+            PopularMoviesState(
+              FetchAction.FETCH_FAILED,
+              emptyList(),
+              emptyList(),
+              parseNetworkError(throwable)
+            )
+          }
+
+        return@switchMap Observable.concat(
+          inProgressState,
+          networkStates
+        )
+      }
+
     val searchState = intentions
       .searchIntention()
       .withLatestFrom(states)
@@ -49,7 +74,8 @@ object PopularMoviesModel {
 
     return Observable.merge(
       lifecycleState,
-      searchState
+      searchState,
+      retryState
     )
   }
 
