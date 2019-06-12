@@ -34,9 +34,10 @@ class MoviesAdapter(private val movies: ArrayList<Movie>) : RecyclerView.Adapter
     fun bindMovie(movie: Movie) {
       itemView.movieNameTextView.text = movie.title
       Picasso
-          .get()
-          .load(BASE_IMAGE_URL + movie.poster)
-          .into(itemView.posterImageView)
+        .get()
+        .load("$BASE_IMAGE_URL$movie.poster")
+        .placeholder(android.R.drawable.stat_sys_download)
+        .into(itemView.posterImageView)
     }
   }
 }
