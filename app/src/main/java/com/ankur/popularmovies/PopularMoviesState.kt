@@ -1,11 +1,16 @@
 package com.ankur.popularmovies
 
+import android.os.Parcelable
+import kotlinx.android.parcel.Parcelize
+import kotlinx.android.parcel.RawValue
+
+@Parcelize
 data class PopularMoviesState(
-    val fetchAction: FetchAction,
-    val movies: List<Movie>,
-    val searchedMovies: List<Movie>,
-    val error: Error?
-)
+  val fetchAction: FetchAction,
+  val movies: @RawValue List<Movie>,
+  val searchedMovies: @RawValue List<Movie>,
+  val error: @RawValue Error?
+) : Parcelable
 
 enum class FetchAction {
   IN_PROGRESS,
