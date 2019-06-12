@@ -5,14 +5,13 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.squareup.picasso.Picasso
-import kotlinx.android.synthetic.main.list_item_movie.view.movieNameTextView
-import kotlinx.android.synthetic.main.list_item_movie.view.posterImageView
+import kotlinx.android.synthetic.main.list_item_movie.view.*
 
 class MoviesAdapter(private val movies: ArrayList<Movie>) : RecyclerView.Adapter<MoviesAdapter.MoviesViewHolder>() {
 
   override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MoviesViewHolder {
     val view = LayoutInflater.from(parent.context)
-        .inflate(R.layout.list_item_movie, parent, false)
+      .inflate(R.layout.list_item_movie, parent, false)
     return MoviesViewHolder(view)
   }
 
@@ -36,7 +35,7 @@ class MoviesAdapter(private val movies: ArrayList<Movie>) : RecyclerView.Adapter
       itemView.movieNameTextView.text = movie.title
       Picasso
         .get()
-        .load("$BASE_IMAGE_URL$movie.poster")
+        .load("${BuildConfig.BASE_IMAGE_URL}${movie.poster}")
         .placeholder(android.R.drawable.stat_sys_download)
         .into(itemView.posterImageView)
     }

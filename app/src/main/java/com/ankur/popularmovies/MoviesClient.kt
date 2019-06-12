@@ -8,7 +8,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 object MoviesClient {
     fun getInstance(): Retrofit {
         return Retrofit.Builder()
-            .baseUrl(BASE_URL)
+            .baseUrl(BuildConfig.BASE_URL)
             .addCallAdapterFactory(RxThreadCallAdapterFactory())
             .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
             .addConverterFactory(GsonConverterFactory.create())
