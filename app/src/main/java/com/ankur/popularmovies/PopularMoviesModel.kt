@@ -37,7 +37,7 @@ object PopularMoviesModel {
       }
 
     val retryState = intentions
-      .retryIntention()
+      .retryClicks()
       .withLatestFrom(states)
       .switchMap { (_, state) ->
         val inProgressState =
@@ -63,7 +63,7 @@ object PopularMoviesModel {
       .map { (_, state) -> state }
 
     val searchState = intentions
-      .searchIntention()
+      .search()
       .withLatestFrom(states)
       .map { (query, state) ->
         val allMovies = state.movies
