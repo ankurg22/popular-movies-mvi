@@ -1,6 +1,7 @@
 package com.ankur.popularmovies
 
 import android.os.Bundle
+import android.os.PersistableBundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
@@ -12,6 +13,8 @@ import io.reactivex.rxkotlin.addTo
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
 import kotlinx.android.synthetic.main.activity_popular_movies.*
+
+const val KEY_MOVIES = "movies"
 
 class PopularMoviesActivity : AppCompatActivity(), PopularMoviesView {
   private val compositeDisposable = CompositeDisposable()
@@ -50,7 +53,13 @@ class PopularMoviesActivity : AppCompatActivity(), PopularMoviesView {
       }
     })
 
-    lifecycleEvent = MviLifecycle.CREATED
+    lifecycleEvent = if (savedInstanceState == null) MviLifecycle.CREATED
+    else MviLifecycle.RESTORED
+
+    savedInstanceState?.let {
+      if (savedInstanceState.getParcelable<PopularMoviesState>(KEY_MOVIES)!=null)
+        states.onNext(savedInstanceState.getParcelable(KEY_MOVIES))
+    }
   }
 
   override fun onStart() {
@@ -71,6 +80,11 @@ class PopularMoviesActivity : AppCompatActivity(), PopularMoviesView {
   override fun onStop() {
     super.onStop()
     compositeDisposable.clear()
+  }
+
+  override fun onSaveInstanceState(outState: Bundle?) {
+    super.onSaveInstanceState(outState)
+    outState?.putParcelable(KEY_MOVIES, states.value)
   }
 
   override fun showResults(movies: List<Movie>) {
