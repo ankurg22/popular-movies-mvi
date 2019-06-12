@@ -53,8 +53,7 @@ class PopularMoviesActivity : AppCompatActivity(), PopularMoviesView {
       }
     })
 
-    lifecycleEvent = if (savedInstanceState == null) MviLifecycle.CREATED
-    else MviLifecycle.RESTORED
+    lifecycleEvent = if (savedInstanceState == null) MviLifecycle.CREATED else MviLifecycle.RESTORED
 
     savedInstanceState?.let {
       if (savedInstanceState.getParcelable<PopularMoviesState>(KEY_MOVIES)!=null)
