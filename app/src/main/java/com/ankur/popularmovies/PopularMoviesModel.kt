@@ -61,6 +61,11 @@ object PopularMoviesModel {
         )
       }
 
+    val restoredState = lifecycle
+      .filter { it == MviLifecycle.RESTORED }
+      .withLatestFrom(states)
+      .map { (_, state) -> state }
+
     val searchState = intentions
       .searchIntention()
       .withLatestFrom(states)
@@ -75,7 +80,8 @@ object PopularMoviesModel {
     return Observable.merge(
       lifecycleState,
       searchState,
-      retryState
+      retryState,
+      restoredState
     )
   }
 

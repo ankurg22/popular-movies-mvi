@@ -146,4 +146,42 @@ class PopularMoviesModelTests {
         PopularMoviesState(FetchAction.FETCH_SUCCESSFUL, movies, emptyList(), null)
       )
   }
+
+  @Test fun `user sees movie list without loading again when UI is restored`(){
+    // Setup
+    val lifecycle = PublishSubject.create<MviLifecycle>()
+    val moviesApi = mock(MoviesApi::class.java)
+    val movies = listOf(
+      Movie(1, "Race 3", "cde"),
+      Movie(2, "abc", "cde")
+    )
+
+    val searchIntention = PublishSubject.create<String>()
+    val retryIntention = PublishSubject.create<Unit>()
+    val intentions = PopularMoviesIntentions(searchIntention, retryIntention)
+
+    val moviesResponse = MoviesResponse(movies)
+    `when`(moviesApi.getTopRatedMovies())
+      .thenReturn(Observable.just(moviesResponse))
+
+    val states = PublishSubject.create<PopularMoviesState>()
+
+    val observer = PopularMoviesModel
+      .bind(lifecycle, moviesApi, intentions, states)
+      .doOnNext { states.onNext(it) }
+      .test()
+
+    // Act
+    lifecycle.onNext(MviLifecycle.CREATED)
+    lifecycle.onNext(MviLifecycle.RESTORED)
+
+    // Assert
+    observer.assertNoErrors()
+      .assertValues(
+        PopularMoviesState(FetchAction.IN_PROGRESS, emptyList(), emptyList(), null),
+        PopularMoviesState(FetchAction.FETCH_SUCCESSFUL, movies, emptyList(), null),
+        PopularMoviesState(FetchAction.FETCH_SUCCESSFUL, movies, emptyList(), null)
+      )
+      .assertNotTerminated()
+  }
 }
