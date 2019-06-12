@@ -55,7 +55,7 @@ class PopularMoviesActivity : AppCompatActivity(), PopularMoviesView {
     lifecycleEvent = if (savedInstanceState == null) MviLifecycle.CREATED else MviLifecycle.RESTORED
 
     savedInstanceState?.let {
-      if (savedInstanceState.getParcelable<PopularMoviesState>(KEY_MOVIES)!=null)
+      if (savedInstanceState.getParcelable<PopularMoviesState>(KEY_MOVIES) != null)
         states.onNext(savedInstanceState.getParcelable(KEY_MOVIES))
     }
   }
@@ -90,12 +90,8 @@ class PopularMoviesActivity : AppCompatActivity(), PopularMoviesView {
     movieAdapter.notifyDataSetChanged()
   }
 
-  override fun showProgress() {
-    progressBar.visibility = View.VISIBLE
-  }
-
-  override fun hideProgress() {
-    progressBar.visibility = View.INVISIBLE
+  override fun showProgress(show: Boolean) {
+    progressBar.visibility = if (show) View.VISIBLE else View.GONE
   }
 
   override fun showError(error: Error) {

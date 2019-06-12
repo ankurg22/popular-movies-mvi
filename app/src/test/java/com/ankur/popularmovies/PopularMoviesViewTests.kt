@@ -19,10 +19,10 @@ class PopularMoviesViewTests {
         view.render(PopularMoviesState(FetchAction.IN_PROGRESS, emptyList(), emptyList(), null))
 
         //assert
-        verify(view).showProgress()
+        verify(view).showProgress(true)
         verify(view, never()).showError(any())
         verify(view, never()).showResults(any())
-        verify(view, never()).hideProgress()
+        verify(view, never()).showProgress(false)
     }
 
     @Test
@@ -35,10 +35,10 @@ class PopularMoviesViewTests {
         view.render(PopularMoviesState(FetchAction.FETCH_SUCCESSFUL, movies, emptyList(), null))
 
         // assert
-        verify(view).hideProgress()
+        verify(view).showProgress(false)
         verify(view).showResults(movies)
         verify(view, never()).showError(any())
-        verify(view, never()).showProgress()
+        verify(view, never()).showProgress(true)
     }
 
     @Test
@@ -49,10 +49,10 @@ class PopularMoviesViewTests {
         view.render(PopularMoviesState(FetchAction.FETCH_FAILED, emptyList(), emptyList(), error))
 
         // assert
-        verify(view).hideProgress()
+        verify(view).showProgress(false)
         verify(view).showError(error)
         verify(view, never()).showResults(any())
-        verify(view, never()).showProgress()
+        verify(view, never()).showProgress(true)
 
     }
 
@@ -71,8 +71,8 @@ class PopularMoviesViewTests {
 
         // assert
         verify(view).showResults(searchedMovies)
-        verify(view, never()).showProgress()
+        verify(view, never()).showProgress(true)
         verify(view, never()).showError(any())
-        verify(view, never()).hideProgress()
+        verify(view, never()).showProgress(false)
     }
 }

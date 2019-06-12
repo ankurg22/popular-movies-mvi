@@ -5,7 +5,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.squareup.picasso.Picasso
-import kotlinx.android.synthetic.main.list_item_movie.view.*
+import kotlinx.android.synthetic.main.list_item_movie.view.movieNameTextView
+import kotlinx.android.synthetic.main.list_item_movie.view.posterImageView
 
 class MoviesAdapter(private val movies: ArrayList<Movie>) : RecyclerView.Adapter<MoviesAdapter.MoviesViewHolder>() {
 
