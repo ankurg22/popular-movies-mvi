@@ -38,21 +38,17 @@ object PopularMoviesModel {
 
     val retryState = intentions
       .retryIntention()
-      .switchMap {
+      .withLatestFrom(states)
+      .switchMap { (_, state) ->
         val inProgressState =
-          Observable.just(PopularMoviesState(FetchAction.IN_PROGRESS, emptyList(), emptyList(), null))
+          Observable.just(state.copy(fetchAction = FetchAction.IN_PROGRESS, movies = emptyList(), error = null))
 
         val networkStates = moviesApi
           .getTopRatedMovies()
           .map { it.movies }
-          .map { movies -> PopularMoviesState(FetchAction.FETCH_SUCCESSFUL, movies, emptyList(), null) }
+          .map { movies -> state.copy(fetchAction = FetchAction.FETCH_SUCCESSFUL, movies = movies, error = null) }
           .onErrorReturn { throwable ->
-            PopularMoviesState(
-              FetchAction.FETCH_FAILED,
-              emptyList(),
-              emptyList(),
-              parseNetworkError(throwable)
-            )
+            state.copy(fetchAction = FetchAction.FETCH_FAILED, error = parseNetworkError(throwable))
           }
 
         return@switchMap Observable.concat(

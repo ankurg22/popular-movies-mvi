@@ -127,6 +127,7 @@ class PopularMoviesModelTests {
 
     val moviesResponse = MoviesResponse(movies)
     `when`(moviesApi.getTopRatedMovies())
+      .thenReturn(Observable.error(SocketTimeoutException()))
       .thenReturn(Observable.just(moviesResponse))
 
     val states = PublishSubject.create<PopularMoviesState>()
@@ -137,11 +138,16 @@ class PopularMoviesModelTests {
       .test()
 
     // Act
+    lifecycle.onNext(MviLifecycle.CREATED)
     retryIntention.onNext(Unit)
 
     // Assert
+    val error = Error(ErrorType.CONNECTION)
+
     observer.assertNoErrors()
       .assertValues(
+        PopularMoviesState(FetchAction.IN_PROGRESS, emptyList(), emptyList(), null),
+        PopularMoviesState(FetchAction.FETCH_FAILED, emptyList(), emptyList(), error),
         PopularMoviesState(FetchAction.IN_PROGRESS, emptyList(), emptyList(), null),
         PopularMoviesState(FetchAction.FETCH_SUCCESSFUL, movies, emptyList(), null)
       )
