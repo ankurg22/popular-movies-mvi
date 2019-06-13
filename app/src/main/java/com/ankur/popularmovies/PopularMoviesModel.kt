@@ -18,26 +18,9 @@ object PopularMoviesModel {
     val lifecycleState = lifecycle
       .filter { it == MviLifecycle.CREATED }
       .switchMap {
-        val inProgressState =
-          Observable.just(PopularMoviesState(FetchAction.IN_PROGRESS, emptyList(), emptyList(), null))
-
-        val networkStates = moviesRepository
+        moviesRepository
           .fetchMovies()
-          .map { it.result }
-          .map { movies -> PopularMoviesState(FetchAction.FETCH_SUCCESSFUL, movies, emptyList(), null) }
-          .onErrorReturn { throwable ->
-            PopularMoviesState(
-              FetchAction.FETCH_FAILED,
-              emptyList(),
-              emptyList(),
-              parseNetworkError(throwable)
-            )
-          }
-
-        return@switchMap Observable.concat(
-          inProgressState,
-          networkStates
-        )
+          .map { fetchEvent -> PopularMoviesState(fetchEvent.fetchAction, fetchEvent.result.orEmpty(), emptyList(), fetchEvent.error) }
       }
 
     val retryState = intentions
