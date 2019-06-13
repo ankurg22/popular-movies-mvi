@@ -38,8 +38,9 @@ class PopularMoviesActivity : AppCompatActivity(), PopularMoviesView {
   private val retryClicks = PublishSubject.create<Unit>()
   private val intentions by lazy { PopularMoviesIntentions(searchQueryChanges, retryClicks) }
 
-  private val repository: PopularMoviesRepository by lazy { PopularMoviesRepositoryImpl() }
   private val moviesApi = MoviesClient.getInstance().create(MoviesApi::class.java)
+
+  private val repository: PopularMoviesRepository by lazy { PopularMoviesRepositoryImpl(moviesApi) }
   private val movieAdapter = MoviesAdapter(arrayListOf())
 
   override fun onCreate(savedInstanceState: Bundle?) {
