@@ -33,4 +33,26 @@ class PopularMoviesRepositoryTests {
       )
       .assertTerminated()
   }
+
+  @Test fun fetchingPopularMoviesFailsDueToUnknownError() {
+    // Setup
+    val moviesApi = mock(MoviesApi::class.java)
+    val repository = PopularMoviesRepositoryImpl(moviesApi)
+    `when`(moviesApi.getTopRatedMovies())
+        .thenReturn(Observable.error(RuntimeException()))
+
+    // Act
+    val observer = repository
+      .fetchMovies()
+      .test()
+
+    // Assert
+    observer
+      .assertNoErrors()
+      .assertValues(
+        FetchEvent(FetchAction.IN_PROGRESS, emptyList()),
+        FetchEvent(FetchAction.FETCH_FAILED, emptyList(), Error(ErrorType.UNKNOWN))
+      )
+      .assertTerminated()
+  }
 }
