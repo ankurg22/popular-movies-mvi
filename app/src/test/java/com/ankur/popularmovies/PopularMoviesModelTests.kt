@@ -167,7 +167,6 @@ class PopularMoviesModelTests {
     // Assert
     observer.assertNoErrors()
       .assertValues(
-        PopularMoviesState(FetchAction.IN_PROGRESS, emptyList(), emptyList(), null),
         PopularMoviesState(FetchAction.FETCH_SUCCESSFUL, movies, emptyList(), null),
         PopularMoviesState(FetchAction.FETCH_SUCCESSFUL, movies, emptyList(), null)
       )
