@@ -11,7 +11,7 @@ import java.net.SocketTimeoutException
 
 class PopularMoviesModelTests {
   private lateinit var lifecycle: PublishSubject<MviLifecycle>
-  private lateinit var moviesApi: MoviesApi
+  private lateinit var moviesRepository: PopularMoviesRepository
 
   private lateinit var searchQueryChanges: PublishSubject<String>
   private lateinit var retryClicks: PublishSubject<Unit>
@@ -21,7 +21,7 @@ class PopularMoviesModelTests {
 
   @Before fun setup() {
     lifecycle = PublishSubject.create()
-    moviesApi = mock(MoviesApi::class.java)
+    moviesRepository = mock(PopularMoviesRepository::class.java)
 
     searchQueryChanges = PublishSubject.create()
     retryClicks = PublishSubject.create()
@@ -30,14 +30,14 @@ class PopularMoviesModelTests {
     states = PublishSubject.create<PopularMoviesState>()
 
     observer = PopularMoviesModel
-      .bind(lifecycle, moviesApi, intentions, states)
+      .bind(lifecycle, moviesRepository, intentions, states)
       .doOnNext { states.onNext(it) }
       .test()
   }
 
   @Test fun `user sees an error when fetching movies fails`() {
     // Setup
-    `when`(moviesApi.getTopRatedMovies())
+    `when`(moviesRepository.fetchMovies())
       .thenReturn(Observable.error(SocketTimeoutException()))
 
     // Act

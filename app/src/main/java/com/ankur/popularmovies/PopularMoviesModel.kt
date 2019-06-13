@@ -7,7 +7,7 @@ import java.io.IOException
 object PopularMoviesModel {
   fun bind(
     lifecycle: Observable<MviLifecycle>,
-    moviesApi: MoviesApi,
+    moviesRepository: PopularMoviesRepository,
     intentions: PopularMoviesIntentions,
     states: Observable<PopularMoviesState>
   ): Observable<PopularMoviesState> {
@@ -17,9 +17,9 @@ object PopularMoviesModel {
         val inProgressState =
           Observable.just(PopularMoviesState(FetchAction.IN_PROGRESS, emptyList(), emptyList(), null))
 
-        val networkStates = moviesApi
-          .getTopRatedMovies()
-          .map { it.movies }
+        val networkStates = moviesRepository
+          .fetchMovies()
+          .map { it.result }
           .map { movies -> PopularMoviesState(FetchAction.FETCH_SUCCESSFUL, movies, emptyList(), null) }
           .onErrorReturn { throwable ->
             PopularMoviesState(
@@ -43,9 +43,9 @@ object PopularMoviesModel {
         val inProgressState =
           Observable.just(state.copy(fetchAction = FetchAction.IN_PROGRESS, movies = emptyList(), error = null))
 
-        val networkStates = moviesApi
-          .getTopRatedMovies()
-          .map { it.movies }
+        val networkStates = moviesRepository
+          .fetchMovies()
+          .map { it.result }
           .map { movies -> state.copy(fetchAction = FetchAction.FETCH_SUCCESSFUL, movies = movies, error = null) }
           .onErrorReturn { throwable ->
             state.copy(fetchAction = FetchAction.FETCH_FAILED, error = parseNetworkError(throwable))
