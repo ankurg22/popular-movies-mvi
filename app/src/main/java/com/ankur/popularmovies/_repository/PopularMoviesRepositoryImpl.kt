@@ -14,12 +14,8 @@ class PopularMoviesRepositoryImpl(
 
         val networkEvents = moviesApi
             .getTopRatedMovies()
-            .map { response ->
-                FetchEvent(FetchAction.FETCH_SUCCESSFUL, response.movies)
-            }
-            .onErrorReturn { error ->
-                FetchEvent(FetchAction.FETCH_FAILED, emptyList(), getError(error))
-            }
+            .map { FetchEvent(FetchAction.FETCH_SUCCESSFUL, it.movies) }
+            .onErrorReturn { FetchEvent(FetchAction.FETCH_FAILED, emptyList(), getError(it)) }
 
         return Observable.concat(
             inProgressEvents,
