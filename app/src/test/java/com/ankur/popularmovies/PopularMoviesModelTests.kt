@@ -84,9 +84,9 @@ class PopularMoviesModelTests {
       Movie(1, "Race 3", "cde")
     )
 
-    val moviesResponse = MoviesResponse(movies)
-    `when`(moviesApi.getTopRatedMovies())
-      .thenReturn(Observable.just(moviesResponse))
+    val fetchEvent: FetchEvent<List<Movie>> = FetchEvent(FetchAction.FETCH_SUCCESSFUL, movies, null)
+    `when`(moviesRepository.fetchMovies())
+      .thenReturn(Observable.just(fetchEvent))
 
     // Act
     lifecycle.onNext(MviLifecycle.CREATED)
