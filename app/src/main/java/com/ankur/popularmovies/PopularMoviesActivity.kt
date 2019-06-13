@@ -12,6 +12,8 @@ import com.ankur.popularmovies._http.MoviesClient
 import com.ankur.popularmovies._mvi.MviLifecycle
 import com.ankur.popularmovies._repository.Error
 import com.ankur.popularmovies._repository.ErrorType
+import com.ankur.popularmovies._repository.PopularMoviesRepository
+import com.ankur.popularmovies._repository.PopularMoviesRepositoryImpl
 import com.google.android.material.snackbar.Snackbar
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -36,6 +38,7 @@ class PopularMoviesActivity : AppCompatActivity(), PopularMoviesView {
   private val retryClicks = PublishSubject.create<Unit>()
   private val intentions by lazy { PopularMoviesIntentions(searchQueryChanges, retryClicks) }
 
+  private val repository: PopularMoviesRepository by lazy { PopularMoviesRepositoryImpl() }
   private val moviesApi = MoviesClient.getInstance().create(MoviesApi::class.java)
   private val movieAdapter = MoviesAdapter(arrayListOf())
 
@@ -77,7 +80,7 @@ class PopularMoviesActivity : AppCompatActivity(), PopularMoviesView {
   override fun onStart() {
     super.onStart()
     PopularMoviesModel
-      .bind(lifecycle, moviesApi, intentions, states)
+      .bind(lifecycle, repository, intentions, states)
       .observeOn(AndroidSchedulers.mainThread())
       .subscribe {
         println(it)
