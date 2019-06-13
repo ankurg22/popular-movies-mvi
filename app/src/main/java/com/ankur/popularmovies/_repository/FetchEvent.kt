@@ -5,5 +5,5 @@ import com.ankur.popularmovies.FetchAction
 data class FetchEvent<T>(
     val fetchAction: FetchAction,
     val result: T?,
-    val error: Error?
+    val error: Error? = null
 )

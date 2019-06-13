@@ -56,7 +56,7 @@ dependencies {
   // Gson
   implementation 'com.squareup.retrofit2:converter-gson:2.5.0'
 
-  //Picasso
+  // Picasso
   implementation "com.squareup.picasso:picasso:2.71828"
 
   // Google Truth
@@ -69,4 +69,7 @@ dependencies {
 
   androidTestImplementation 'androidx.test.ext:junit:1.1.1'
   androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+  androidTestImplementation "org.mockito:mockito-android:2.28.2"
+  androidTestImplementation "org.mockito:mockito-core:2.28.2"
+  androidTestImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:2.1.0"
 }
