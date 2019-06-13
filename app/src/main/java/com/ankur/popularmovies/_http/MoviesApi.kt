@@ -1,5 +1,6 @@
-package com.ankur.popularmovies
+package com.ankur.popularmovies._http
 
+import com.ankur.popularmovies.BuildConfig
 import io.reactivex.Observable
 import retrofit2.http.GET
 

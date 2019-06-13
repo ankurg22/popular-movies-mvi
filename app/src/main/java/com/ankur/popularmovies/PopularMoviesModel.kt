@@ -1,15 +1,19 @@
 package com.ankur.popularmovies
 
+import com.ankur.popularmovies._mvi.MviLifecycle
+import com.ankur.popularmovies._repository.Error
+import com.ankur.popularmovies._repository.ErrorType
+import com.ankur.popularmovies._repository.PopularMoviesRepository
 import io.reactivex.Observable
 import io.reactivex.rxkotlin.withLatestFrom
 import java.io.IOException
 
 object PopularMoviesModel {
   fun bind(
-    lifecycle: Observable<MviLifecycle>,
-    moviesRepository: PopularMoviesRepository,
-    intentions: PopularMoviesIntentions,
-    states: Observable<PopularMoviesState>
+      lifecycle: Observable<MviLifecycle>,
+      moviesRepository: PopularMoviesRepository,
+      intentions: PopularMoviesIntentions,
+      states: Observable<PopularMoviesState>
   ): Observable<PopularMoviesState> {
     val lifecycleState = lifecycle
       .filter { it == MviLifecycle.CREATED }
@@ -83,9 +87,9 @@ object PopularMoviesModel {
 
   fun parseNetworkError(throwable: Throwable): Error {
     return if (throwable is IOException) {
-      Error(ErrorType.CONNECTION)
+        Error(ErrorType.CONNECTION)
     } else {
-      Error(ErrorType.UNKNOWN)
+        Error(ErrorType.UNKNOWN)
     }
   }
 }

@@ -1,5 +1,11 @@
 package com.ankur.popularmovies
 
+import com.ankur.popularmovies._http.Movie
+import com.ankur.popularmovies._mvi.MviLifecycle
+import com.ankur.popularmovies._repository.Error
+import com.ankur.popularmovies._repository.ErrorType
+import com.ankur.popularmovies._repository.FetchEvent
+import com.ankur.popularmovies._repository.PopularMoviesRepository
 import io.reactivex.Observable
 import io.reactivex.observers.TestObserver
 import io.reactivex.subjects.PublishSubject
@@ -56,10 +62,11 @@ class PopularMoviesModelTests {
   @Test fun `user sees a list of movies when fetching movies succeeds`() {
     // Setup
     val movies = listOf(
-      Movie(1, "abc", "cde"),
-      Movie(2, "abc", "cde")
+        Movie(1, "abc", "cde"),
+        Movie(2, "abc", "cde")
     )
-    val fetchEvent: FetchEvent<List<Movie>> = FetchEvent(FetchAction.FETCH_SUCCESSFUL, movies, null)
+    val fetchEvent: FetchEvent<List<Movie>> =
+        FetchEvent(FetchAction.FETCH_SUCCESSFUL, movies, null)
     `when`(moviesRepository.fetchMovies())
       .thenReturn(Observable.just(fetchEvent))
 
@@ -77,14 +84,15 @@ class PopularMoviesModelTests {
   @Test fun `user search the movie by name and search succeeds`() {
     // Setup
     val movies = listOf(
-      Movie(1, "Race 3", "cde"),
-      Movie(2, "abc", "cde")
+        Movie(1, "Race 3", "cde"),
+        Movie(2, "abc", "cde")
     )
     val filteredMovies = listOf(
-      Movie(1, "Race 3", "cde")
+        Movie(1, "Race 3", "cde")
     )
 
-    val fetchEvent: FetchEvent<List<Movie>> = FetchEvent(FetchAction.FETCH_SUCCESSFUL, movies, null)
+    val fetchEvent: FetchEvent<List<Movie>> =
+        FetchEvent(FetchAction.FETCH_SUCCESSFUL, movies, null)
     `when`(moviesRepository.fetchMovies())
       .thenReturn(Observable.just(fetchEvent))
 
@@ -104,10 +112,11 @@ class PopularMoviesModelTests {
   @Test fun `user hits retry loading movies after error`() {
     // setup
     val movies = listOf(
-      Movie(1, "Race 3", "cde"),
-      Movie(2, "abc", "cde")
+        Movie(1, "Race 3", "cde"),
+        Movie(2, "abc", "cde")
     )
-    val fetchEvent: FetchEvent<List<Movie>> = FetchEvent(FetchAction.FETCH_SUCCESSFUL, movies, null)
+    val fetchEvent: FetchEvent<List<Movie>> =
+        FetchEvent(FetchAction.FETCH_SUCCESSFUL, movies, null)
     `when`(moviesRepository.fetchMovies())
       .thenReturn(Observable.error(SocketTimeoutException()))
       .thenReturn(Observable.just(fetchEvent))
@@ -132,10 +141,11 @@ class PopularMoviesModelTests {
   fun `user sees movie list without loading again when UI is restored`() {
     // Setup
     val movies = listOf(
-      Movie(1, "Race 3", "cde"),
-      Movie(2, "abc", "cde")
+        Movie(1, "Race 3", "cde"),
+        Movie(2, "abc", "cde")
     )
-    val fetchEvent: FetchEvent<List<Movie>> = FetchEvent(FetchAction.FETCH_SUCCESSFUL, movies, null)
+    val fetchEvent: FetchEvent<List<Movie>> =
+        FetchEvent(FetchAction.FETCH_SUCCESSFUL, movies, null)
     `when`(moviesRepository.fetchMovies())
       .thenReturn(Observable.just(fetchEvent))
 

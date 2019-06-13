@@ -4,6 +4,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.ankur.popularmovies._http.Movie
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.list_item_movie.view.movieNameTextView
 import kotlinx.android.synthetic.main.list_item_movie.view.posterImageView

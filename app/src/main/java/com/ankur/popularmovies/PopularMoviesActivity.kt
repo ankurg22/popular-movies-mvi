@@ -6,6 +6,12 @@ import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.ankur.popularmovies._http.Movie
+import com.ankur.popularmovies._http.MoviesApi
+import com.ankur.popularmovies._http.MoviesClient
+import com.ankur.popularmovies._mvi.MviLifecycle
+import com.ankur.popularmovies._repository.Error
+import com.ankur.popularmovies._repository.ErrorType
 import com.google.android.material.snackbar.Snackbar
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable

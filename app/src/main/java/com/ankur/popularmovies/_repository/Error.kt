@@ -1,4 +1,4 @@
-package com.ankur.popularmovies
+package com.ankur.popularmovies._repository
 
 data class Error(
     val type: ErrorType

@@ -1,5 +1,8 @@
 package com.ankur.popularmovies
 
+import com.ankur.popularmovies._http.Movie
+import com.ankur.popularmovies._repository.Error
+import com.ankur.popularmovies._repository.ErrorType
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.never
 import com.nhaarman.mockitokotlin2.verify
@@ -27,7 +30,7 @@ class PopularMoviesViewTests {
   @Test fun `fetching is successful and UI displays a list`() {
     // act
     val movies = listOf(
-      Movie(1, "asd", "asda")
+        Movie(1, "asd", "asda")
     )
 
     view.render(PopularMoviesState(FetchAction.FETCH_SUCCESSFUL, movies, emptyList(), null))
@@ -56,12 +59,12 @@ class PopularMoviesViewTests {
   @Test fun `user search by movie name and UI displays a list`() {
     // act
     val movies = listOf(
-      Movie(2, "fdfas", "adfa"),
-      Movie(2, "fdfas", "adfa"),
-      Movie(2, "fdfas", "adfa")
+        Movie(2, "fdfas", "adfa"),
+        Movie(2, "fdfas", "adfa"),
+        Movie(2, "fdfas", "adfa")
     )
     val searchedMovies = listOf(
-      Movie(2, "fdfas", "adfa")
+        Movie(2, "fdfas", "adfa")
     )
     view.render(PopularMoviesState(FetchAction.FETCH_SUCCESSFUL, movies, searchedMovies, null))
 

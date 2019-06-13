@@ -1,4 +1,4 @@
-package com.ankur.popularmovies
+package com.ankur.popularmovies._http
 
 import com.google.gson.annotations.SerializedName
 

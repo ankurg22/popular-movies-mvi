@@ -1,5 +1,6 @@
-package com.ankur.popularmovies
+package com.ankur.popularmovies._http
 
+import com.ankur.popularmovies.BuildConfig
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
