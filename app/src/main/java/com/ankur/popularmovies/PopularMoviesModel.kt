@@ -10,38 +10,39 @@ import java.io.IOException
 
 object PopularMoviesModel {
   fun bind(
-      lifecycle: Observable<MviLifecycle>,
-      moviesRepository: PopularMoviesRepository,
-      intentions: PopularMoviesIntentions,
-      states: Observable<PopularMoviesState>
+    lifecycle: Observable<MviLifecycle>,
+    moviesRepository: PopularMoviesRepository,
+    intentions: PopularMoviesIntentions,
+    states: Observable<PopularMoviesState>
   ): Observable<PopularMoviesState> {
     val lifecycleState = lifecycle
       .filter { it == MviLifecycle.CREATED }
       .switchMap {
         moviesRepository
           .fetchMovies()
-          .map { fetchEvent -> PopularMoviesState(fetchEvent.fetchAction, fetchEvent.result.orEmpty(), emptyList(), fetchEvent.error) }
+          .map { fetchEvent ->
+            PopularMoviesState(
+              fetchEvent.fetchAction,
+              fetchEvent.result.orEmpty(),
+              emptyList(),
+              fetchEvent.error
+            )
+          }
       }
 
     val retryState = intentions
       .retryClicks()
       .withLatestFrom(states)
       .switchMap { (_, state) ->
-        val inProgressState =
-          Observable.just(state.copy(fetchAction = FetchAction.IN_PROGRESS, movies = emptyList(), error = null))
-
-        val networkStates = moviesRepository
+        moviesRepository
           .fetchMovies()
-          .map { it.result }
-          .map { movies -> state.copy(fetchAction = FetchAction.FETCH_SUCCESSFUL, movies = movies, error = null) }
-          .onErrorReturn { throwable ->
-            state.copy(fetchAction = FetchAction.FETCH_FAILED, error = parseNetworkError(throwable))
+          .map { fetchEvent ->
+            state.copy(
+              fetchAction = fetchEvent.fetchAction,
+              movies = fetchEvent.result.orEmpty(),
+              error = null
+            )
           }
-
-        return@switchMap Observable.concat(
-          inProgressState,
-          networkStates
-        )
       }
 
     val restoredState = lifecycle
@@ -70,9 +71,9 @@ object PopularMoviesModel {
 
   fun parseNetworkError(throwable: Throwable): Error {
     return if (throwable is IOException) {
-        Error(ErrorType.CONNECTION)
+      Error(ErrorType.CONNECTION)
     } else {
-        Error(ErrorType.UNKNOWN)
+      Error(ErrorType.UNKNOWN)
     }
   }
 }

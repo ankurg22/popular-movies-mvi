@@ -114,7 +114,7 @@ class PopularMoviesModelTests {
         PopularMoviesState(FetchAction.FETCH_SUCCESSFUL, movies, filteredMovies, null)
       )
   }
-/*
+
   @Test fun `user hits retry loading movies after error`() {
     // setup
     val movies = listOf(
@@ -123,17 +123,23 @@ class PopularMoviesModelTests {
     )
     val fetchEvent: FetchEvent<List<Movie>> =
         FetchEvent(FetchAction.FETCH_SUCCESSFUL, movies, null)
+    val error = Error(ErrorType.CONNECTION)
+
     `when`(moviesRepository.fetchMovies())
-      .thenReturn(Observable.error(SocketTimeoutException()))
-      .thenReturn(Observable.just(fetchEvent))
+      .thenReturn(Observable.just(
+        FetchEvent(FetchAction.IN_PROGRESS, emptyList()),
+        FetchEvent(FetchAction.FETCH_FAILED, emptyList(), error)
+      ))
+      .thenReturn(Observable.just(
+        FetchEvent(FetchAction.IN_PROGRESS, emptyList()),
+        fetchEvent
+      ))
 
     // Act
     lifecycle.onNext(MviLifecycle.CREATED)
     retryClicks.onNext(Unit)
 
     // Assert
-    val error = Error(ErrorType.CONNECTION)
-
     observer.assertNoErrors()
       .assertValues(
         PopularMoviesState(FetchAction.IN_PROGRESS, emptyList(), emptyList(), null),
@@ -168,5 +174,4 @@ class PopularMoviesModelTests {
       )
       .assertNotTerminated()
   }
-*/
 }
