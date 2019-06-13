@@ -1,6 +1,8 @@
 package com.ankur.popularmovies
 
+import com.ankur.popularmovies._http.Movie
 import com.ankur.popularmovies._http.MoviesApi
+import com.ankur.popularmovies._http.MoviesResponse
 import com.ankur.popularmovies._repository.Error
 import com.ankur.popularmovies._repository.ErrorType
 import com.ankur.popularmovies._repository.FetchEvent
@@ -52,6 +54,29 @@ class PopularMoviesRepositoryTests {
       .assertValues(
         FetchEvent(FetchAction.IN_PROGRESS, emptyList()),
         FetchEvent(FetchAction.FETCH_FAILED, emptyList(), Error(ErrorType.UNKNOWN))
+      )
+      .assertTerminated()
+  }
+
+  @Test fun fetchingPopularMoviesSucceeds() {
+    // Setup
+    val movies = listOf(Movie(1, "DDLJ", "https://some-url.com"))
+    val moviesApi  = mock(MoviesApi::class.java)
+    val repository = PopularMoviesRepositoryImpl(moviesApi)
+    `when`(moviesApi.getTopRatedMovies())
+      .thenReturn(Observable.just(MoviesResponse(movies)))
+
+    // Act
+    val observer = repository
+      .fetchMovies()
+      .test()
+
+    // Assert
+    observer
+      .assertNoErrors()
+      .assertValues(
+        FetchEvent(FetchAction.IN_PROGRESS, emptyList()),
+        FetchEvent(FetchAction.FETCH_SUCCESSFUL, movies)
       )
       .assertTerminated()
   }
