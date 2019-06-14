@@ -8,17 +8,18 @@ import com.ankur.popularmovies._http.Movie
 
 const val DATABASE_NAME = "movies"
 
-@Database(entities = [Movie::class], version = 1)
-abstract class PopularMovieDatabase : RoomDatabase() {
+@Database(entities = [Movie::class], version = 1, exportSchema = true)
+abstract class PopularMoviesDatabase : RoomDatabase() {
   abstract fun movieDao(): MovieDao
 
-  fun getInstance(context: Context): RoomDatabase {
-    return Room
+  companion object {
+    fun getInstance(context: Context): RoomDatabase.Builder<PopularMoviesDatabase> {
+      return Room
         .databaseBuilder(
-            context,
-            PopularMovieDatabase::class.java,
-            DATABASE_NAME
+          context,
+          PopularMoviesDatabase::class.java,
+          DATABASE_NAME
         )
-        .build()
+    }
   }
 }
