@@ -14,7 +14,8 @@ import org.mockito.Mockito.mock
 import java.net.SocketTimeoutException
 
 class PopularMoviesRepositoryTests {
-  @Test fun fetchingPopularMoviesFailsDueToConnectionError() {
+  @Test
+  fun fetchingPopularMoviesFailsDueToConnectionError() {
     // Setup
     val movieApi = mock(MoviesApi::class.java)
     val repository = PopularMoviesRepositoryImpl(movieApi)
@@ -23,20 +24,21 @@ class PopularMoviesRepositoryTests {
 
     // Act
     val observer = repository
-      .fetchMovies()
-      .test()
+        .fetchMovies()
+        .test()
 
     // Assert
     observer
-      .assertNoErrors()
-      .assertValues(
-        FetchEvent(FetchAction.IN_PROGRESS, emptyList()),
-        FetchEvent(FetchAction.FETCH_FAILED, emptyList(), Error(ErrorType.CONNECTION))
-      )
-      .assertTerminated()
+        .assertNoErrors()
+        .assertValues(
+            FetchEvent(FetchAction.IN_PROGRESS, emptyList()),
+            FetchEvent(FetchAction.FETCH_FAILED, emptyList(), Error(ErrorType.CONNECTION))
+        )
+        .assertTerminated()
   }
 
-  @Test fun fetchingPopularMoviesFailsDueToUnknownError() {
+  @Test
+  fun fetchingPopularMoviesFailsDueToUnknownError() {
     // Setup
     val moviesApi = mock(MoviesApi::class.java)
     val repository = PopularMoviesRepositoryImpl(moviesApi)
@@ -45,39 +47,40 @@ class PopularMoviesRepositoryTests {
 
     // Act
     val observer = repository
-      .fetchMovies()
-      .test()
+        .fetchMovies()
+        .test()
 
     // Assert
     observer
-      .assertNoErrors()
-      .assertValues(
-        FetchEvent(FetchAction.IN_PROGRESS, emptyList()),
-        FetchEvent(FetchAction.FETCH_FAILED, emptyList(), Error(ErrorType.UNKNOWN))
-      )
-      .assertTerminated()
+        .assertNoErrors()
+        .assertValues(
+            FetchEvent(FetchAction.IN_PROGRESS, emptyList()),
+            FetchEvent(FetchAction.FETCH_FAILED, emptyList(), Error(ErrorType.UNKNOWN))
+        )
+        .assertTerminated()
   }
 
-  @Test fun fetchingPopularMoviesSucceeds() {
+  @Test
+  fun fetchingPopularMoviesSucceeds() {
     // Setup
     val movies = listOf(Movie(1, "DDLJ", "https://some-url.com"))
-    val moviesApi  = mock(MoviesApi::class.java)
+    val moviesApi = mock(MoviesApi::class.java)
     val repository = PopularMoviesRepositoryImpl(moviesApi)
     `when`(moviesApi.getTopRatedMovies())
-      .thenReturn(Observable.just(MoviesResponse(movies)))
+        .thenReturn(Observable.just(MoviesResponse(movies)))
 
     // Act
     val observer = repository
-      .fetchMovies()
-      .test()
+        .fetchMovies()
+        .test()
 
     // Assert
     observer
-      .assertNoErrors()
-      .assertValues(
-        FetchEvent(FetchAction.IN_PROGRESS, emptyList()),
-        FetchEvent(FetchAction.FETCH_SUCCESSFUL, movies)
-      )
-      .assertTerminated()
+        .assertNoErrors()
+        .assertValues(
+            FetchEvent(FetchAction.IN_PROGRESS, emptyList()),
+            FetchEvent(FetchAction.FETCH_SUCCESSFUL, movies)
+        )
+        .assertTerminated()
   }
 }

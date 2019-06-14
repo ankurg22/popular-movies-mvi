@@ -8,10 +8,10 @@ import kotlinx.android.parcel.RawValue
 
 @Parcelize
 data class PopularMoviesState(
-    val fetchAction: FetchAction,
-    val movies: @RawValue List<Movie>,
-    val searchedMovies: @RawValue List<Movie>,
-    val error: @RawValue Error?
+  val fetchAction: FetchAction,
+  val movies: @RawValue List<Movie>,
+  val searchedMovies: @RawValue List<Movie>,
+  val error: @RawValue Error?
 ) : Parcelable
 
 enum class FetchAction {
