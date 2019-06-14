@@ -1,12 +1,9 @@
 package com.ankur.popularmovies
 
 import com.ankur.popularmovies._mvi.MviLifecycle
-import com.ankur.popularmovies._repository.Error
-import com.ankur.popularmovies._repository.ErrorType
 import com.ankur.popularmovies._repository.PopularMoviesRepository
 import io.reactivex.Observable
 import io.reactivex.rxkotlin.withLatestFrom
-import java.io.IOException
 
 object PopularMoviesModel {
   fun bind(
@@ -67,13 +64,5 @@ object PopularMoviesModel {
       retryState,
       restoredState
     )
-  }
-
-  fun parseNetworkError(throwable: Throwable): Error {
-    return if (throwable is IOException) {
-      Error(ErrorType.CONNECTION)
-    } else {
-      Error(ErrorType.UNKNOWN)
-    }
   }
 }
