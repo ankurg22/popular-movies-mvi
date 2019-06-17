@@ -23,7 +23,10 @@ class PopularMoviesRepositoryImpl(
     val networkEvents = moviesApi
       .getTopRatedMovies()
       .switchMap { Observable
-        .fromCallable { moviesDao.insertAll(it.movies) }
+        .fromCallable {
+          moviesDao.clearTable()
+          moviesDao.insertAll(it.movies)
+        }
         .subscribeOn(schedulerProvider.io())
         .switchMap { moviesDao
           .getAll()

@@ -169,30 +169,51 @@ class PopularMoviesRepositoryTests {
       .assertResult(movies)
 
   }
-  // Cache - Hit, Network - Hit
 
-  /*
-  @Test fun fetchingPopularMoviesSucceeds() {
+  // Cache - Hit, Network - Hit
+  @Test fun fetchingMovies_cacheHit_networkHit_storesDataInCache() {
     // Setup
-    val movies = listOf(Movie(1, "DDLJ", "https://some-url.com"))
+    val context = InstrumentationRegistry
+      .getInstrumentation()
+      .context
+    val movies = listOf(
+      Movie(1, "XYZ", "292039"),
+      Movie(2, "ABC", "292992")
+    )
+
+    val database = Room
+      .inMemoryDatabaseBuilder(context, PopularMoviesDatabase::class.java)
+      .build()
+    database.movieDao().insertAll(movies)
+
     val moviesApi = mock(MoviesApi::class.java)
-    val repository = PopularMoviesRepositoryImpl(moviesApi)
     `when`(moviesApi.getTopRatedMovies())
-        .thenReturn(Observable.just(MoviesResponse(movies)))
+      .thenReturn(Observable.just(MoviesResponse(movies)))
+
+    val schedulerProvider = TestSchedulerProvider()
+    val repository = PopularMoviesRepositoryImpl(database, moviesApi, schedulerProvider)
 
     // Act
     val observer = repository
-        .fetchMovies()
-        .test()
+      .fetchMovies()
+      .test()
+
+    val dbObserver = database
+      .movieDao()
+      .getAll()
+      .test()
 
     // Assert
     observer
-        .assertNoErrors()
-        .assertValues(
-            FetchEvent(FetchAction.IN_PROGRESS, emptyList()),
-            FetchEvent(FetchAction.FETCH_SUCCESSFUL, movies)
-        )
-        .assertTerminated()
+      .assertNoErrors()
+      .assertResult(
+        FetchEvent(FetchAction.IN_PROGRESS, movies),
+        FetchEvent(FetchAction.FETCH_SUCCESSFUL, movies)
+      )
+      .assertTerminated()
+
+    dbObserver
+      .assertNoErrors()
+      .assertResult(movies)
   }
-  */
 }
