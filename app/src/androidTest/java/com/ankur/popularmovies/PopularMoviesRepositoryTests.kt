@@ -1,44 +1,74 @@
 package com.ankur.popularmovies
 
-import com.ankur.popularmovies._http.Movie
+import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import androidx.room.EmptyResultSetException
+import androidx.room.Room
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.platform.app.InstrumentationRegistry
+import com.ankur.popularmovies._db.PopularMoviesDatabase
 import com.ankur.popularmovies._http.MoviesApi
-import com.ankur.popularmovies._http.MoviesResponse
 import com.ankur.popularmovies._repository.Error
 import com.ankur.popularmovies._repository.ErrorType
 import com.ankur.popularmovies._repository.FetchEvent
 import com.ankur.popularmovies._repository.PopularMoviesRepositoryImpl
 import io.reactivex.Observable
+import org.junit.Rule
 import org.junit.Test
+import org.junit.runner.RunWith
 import org.mockito.Mockito.`when`
 import org.mockito.Mockito.mock
 import java.net.SocketTimeoutException
 
+@RunWith(AndroidJUnit4::class)
 class PopularMoviesRepositoryTests {
-  @Test
-  fun fetchingPopularMoviesFailsDueToConnectionError() {
+  @JvmField @Rule val instantTaskExecutor = InstantTaskExecutorRule()
+
+  // Cache - Missed (no data in the database), Network - Miss,
+  @Test fun fetchingPopularMovies_cacheMiss_networkMiss_no_results() {
     // Setup
-    val movieApi = mock(MoviesApi::class.java)
-    val repository = PopularMoviesRepositoryImpl(movieApi)
-    `when`(movieApi.getTopRatedMovies())
-        .thenReturn(Observable.error(SocketTimeoutException()))
+    val moviesApi = mock(MoviesApi::class.java)
+
+    `when`(moviesApi.getTopRatedMovies())
+      .thenReturn(Observable.error(SocketTimeoutException()))
+    val error = Error(ErrorType.CONNECTION)
+
+    val context = InstrumentationRegistry
+      .getInstrumentation()
+      .context
+
+    val schedulerProvider = TestSchedulerProvider()
+
+    val database = Room
+      .inMemoryDatabaseBuilder(context, PopularMoviesDatabase::class.java)
+      .build()
+
+    val repository = PopularMoviesRepositoryImpl(database, moviesApi, schedulerProvider)
 
     // Act
     val observer = repository
-        .fetchMovies()
-        .test()
+      .fetchMovies()
+      .test()
+
+    val dbObserver = database
+      .movieDao()
+      .getAll()
+      .test()
 
     // Assert
     observer
-        .assertNoErrors()
-        .assertValues(
-            FetchEvent(FetchAction.IN_PROGRESS, emptyList()),
-            FetchEvent(FetchAction.FETCH_FAILED, emptyList(), Error(ErrorType.CONNECTION))
-        )
-        .assertTerminated()
+      .assertNoErrors()
+      .assertResult(
+        FetchEvent(FetchAction.IN_PROGRESS, emptyList()),
+        FetchEvent(FetchAction.FETCH_FAILED, emptyList(), error)
+      )
+      .assertTerminated()
+
+    dbObserver
+      .assertResult(emptyList()) // List<T>, when
   }
 
-  @Test
-  fun fetchingPopularMoviesFailsDueToUnknownError() {
+  /*
+  @Test fun fetchingPopularMoviesFailsDueToUnknownError() {
     // Setup
     val moviesApi = mock(MoviesApi::class.java)
     val repository = PopularMoviesRepositoryImpl(moviesApi)
@@ -59,9 +89,14 @@ class PopularMoviesRepositoryTests {
         )
         .assertTerminated()
   }
+  */
 
-  @Test
-  fun fetchingPopularMoviesSucceeds() {
+  // Cache - Miss, Network - Hit
+  // Cache - Hit, Network - Miss,
+  // Cache - Hit, Network - Hit
+
+  /*
+  @Test fun fetchingPopularMoviesSucceeds() {
     // Setup
     val movies = listOf(Movie(1, "DDLJ", "https://some-url.com"))
     val moviesApi = mock(MoviesApi::class.java)
@@ -83,4 +118,5 @@ class PopularMoviesRepositoryTests {
         )
         .assertTerminated()
   }
+  */
 }
