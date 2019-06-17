@@ -1,7 +1,6 @@
 package com.ankur.popularmovies
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import androidx.room.EmptyResultSetException
 import androidx.room.Room
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
@@ -119,6 +118,57 @@ class PopularMoviesRepositoryTests {
 
 
   // Cache - Hit, Network - Miss,
+  @Test fun fetchingPopularMovies_cacheHit_networkMiss() {
+    // Setup
+    val moviesApi = mock(MoviesApi::class.java)
+
+    `when`(moviesApi.getTopRatedMovies())
+      .thenReturn(Observable.error(SocketTimeoutException()))
+    val error = Error(ErrorType.CONNECTION)
+
+    val context = InstrumentationRegistry
+      .getInstrumentation()
+      .context
+
+    val movies = listOf(
+      Movie(1, "XYZ", "292039"),
+      Movie(2, "ABC", "292992")
+    )
+
+    val database = Room
+      .inMemoryDatabaseBuilder(context, PopularMoviesDatabase::class.java)
+      .build()
+
+    database.movieDao().insertAll(movies)
+
+    val schedulerProvider = TestSchedulerProvider()
+
+    val repository = PopularMoviesRepositoryImpl(database, moviesApi, schedulerProvider)
+
+    // Act
+    val observer = repository
+      .fetchMovies()
+      .test()
+
+    val dbObserver = database
+      .movieDao()
+      .getAll()
+      .test()
+
+    // Assert
+    observer
+      .assertNoErrors()
+      .assertResult(
+        FetchEvent(FetchAction.IN_PROGRESS, movies),
+        FetchEvent(FetchAction.FETCH_FAILED, emptyList(), error)
+      )
+      .assertTerminated()
+
+    dbObserver
+      .assertNoErrors()
+      .assertResult(movies)
+
+  }
   // Cache - Hit, Network - Hit
 
   /*
