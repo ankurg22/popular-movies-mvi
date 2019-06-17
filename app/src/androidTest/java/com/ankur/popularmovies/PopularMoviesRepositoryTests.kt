@@ -6,7 +6,9 @@ import androidx.room.Room
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.ankur.popularmovies._db.PopularMoviesDatabase
+import com.ankur.popularmovies._http.Movie
 import com.ankur.popularmovies._http.MoviesApi
+import com.ankur.popularmovies._http.MoviesResponse
 import com.ankur.popularmovies._repository.Error
 import com.ankur.popularmovies._repository.ErrorType
 import com.ankur.popularmovies._repository.FetchEvent
@@ -67,31 +69,55 @@ class PopularMoviesRepositoryTests {
       .assertResult(emptyList()) // List<T>, when
   }
 
-  /*
-  @Test fun fetchingPopularMoviesFailsDueToUnknownError() {
+  // Cache - Miss, Network - Hit
+  @Test fun fetchingPopularMovies_cacheMiss_networkHit_storesDataInCache() {
     // Setup
     val moviesApi = mock(MoviesApi::class.java)
-    val repository = PopularMoviesRepositoryImpl(moviesApi)
+    val context = InstrumentationRegistry
+      .getInstrumentation()
+      .context
+
+    val movies = listOf(
+      Movie(1, "XYZ", "292039"),
+      Movie(2, "ABC", "292992")
+    )
+
     `when`(moviesApi.getTopRatedMovies())
-        .thenReturn(Observable.error(RuntimeException()))
+      .thenReturn(Observable.just(MoviesResponse(movies)))
+
+    val schedulerProvider = TestSchedulerProvider()
+
+    val database = Room
+      .inMemoryDatabaseBuilder(context, PopularMoviesDatabase::class.java)
+      .build()
+
+    val repository = PopularMoviesRepositoryImpl(database, moviesApi, schedulerProvider)
 
     // Act
     val observer = repository
-        .fetchMovies()
-        .test()
+      .fetchMovies()
+      .test()
+
+    val dbObserver = database
+      .movieDao()
+      .getAll()
+      .test()
 
     // Assert
     observer
-        .assertNoErrors()
-        .assertValues(
-            FetchEvent(FetchAction.IN_PROGRESS, emptyList()),
-            FetchEvent(FetchAction.FETCH_FAILED, emptyList(), Error(ErrorType.UNKNOWN))
-        )
-        .assertTerminated()
-  }
-  */
+      .assertNoErrors()
+      .assertResult(
+        FetchEvent(FetchAction.IN_PROGRESS, emptyList<Movie>()),
+        FetchEvent(FetchAction.FETCH_SUCCESSFUL, movies)
+      )
+      .assertTerminated()
 
-  // Cache - Miss, Network - Hit
+    dbObserver
+      .assertNoErrors()
+      .assertResult(movies)
+  }
+
+
   // Cache - Hit, Network - Miss,
   // Cache - Hit, Network - Hit
 

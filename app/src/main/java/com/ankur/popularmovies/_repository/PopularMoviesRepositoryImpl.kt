@@ -22,7 +22,14 @@ class PopularMoviesRepositoryImpl(
 
     val networkEvents = moviesApi
       .getTopRatedMovies()
-      .map { FetchEvent(FetchAction.FETCH_SUCCESSFUL, it.movies) }
+      .switchMap { Observable
+        .fromCallable { moviesDao.insertAll(it.movies) }
+        .subscribeOn(schedulerProvider.io())
+        .switchMap { moviesDao
+          .getAll()
+          .toObservable()
+          .map { FetchEvent(FetchAction.FETCH_SUCCESSFUL, it) } }
+      }
       .onErrorReturn { FetchEvent(FetchAction.FETCH_FAILED, emptyList(), getError(it)) }
 
     return Observable.concat(
