@@ -11,7 +11,12 @@ import com.ankur.popularmovies._http.Movie
 import com.ankur.popularmovies._http.MoviesApi
 import com.ankur.popularmovies._http.MoviesClient
 import com.ankur.popularmovies._mvi.MviLifecycle
-import com.ankur.popularmovies._repository.*
+import com.ankur.popularmovies._repository.Error
+import com.ankur.popularmovies._repository.ErrorType
+import com.ankur.popularmovies._repository.PopularMoviesRepository
+import com.ankur.popularmovies._repository.PopularMoviesRepositoryImpl
+import com.ankur.popularmovies._repository.SchedulerProvider
+import com.ankur.popularmovies._repository.SchedulerProviderImpl
 import com.google.android.material.snackbar.Snackbar
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -22,6 +27,7 @@ import kotlinx.android.synthetic.main.activity_popular_movies.movieRecyclerView
 import kotlinx.android.synthetic.main.activity_popular_movies.movieSearchView
 import kotlinx.android.synthetic.main.activity_popular_movies.progressBar
 import kotlinx.android.synthetic.main.activity_popular_movies.rootLayout
+import kotlinx.android.synthetic.main.activity_popular_movies.silentProgressBar
 
 const val KEY_MOVIES = "movies"
 
@@ -37,7 +43,7 @@ class PopularMoviesActivity : AppCompatActivity(), PopularMoviesView {
   private val intentions by lazy { PopularMoviesIntentions(searchQueryChanges, retryClicks) }
 
   private val moviesApi = MoviesClient.getInstance().create(MoviesApi::class.java)
-  private val schedulerProvider: SchedulerProvider by lazy { TODO() }
+  private val schedulerProvider: SchedulerProvider by lazy { SchedulerProviderImpl() }
   private val repository: PopularMoviesRepository by lazy { PopularMoviesRepositoryImpl(PopularMoviesDatabase.getInstance(this).build(), moviesApi, schedulerProvider) }
 
   private val movieAdapter = MoviesAdapter(arrayListOf())
@@ -111,6 +117,7 @@ class PopularMoviesActivity : AppCompatActivity(), PopularMoviesView {
   }
 
   override fun showSilentProgress(show: Boolean) {
+    silentProgressBar.visibility = if (show) View.VISIBLE else View.GONE
   }
 
   override fun showError(error: Error) {
