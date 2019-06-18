@@ -43,4 +43,19 @@ class PopularMoviesViewTests {
     verify(view, never()).showProgress(false)
     verify(view, never()).showError(any())
   }
+
+  @Test fun `network fetching failed and UI displays an error`() {
+    // act
+    val error = Error(ErrorType.CONNECTION)
+    view.render(PopularMoviesState(FetchAction.FETCH_FAILED, emptyList(), emptyList(), error))
+
+    // assert
+    verify(view).showProgress(false)
+    verify(view).showSilentProgress(false)
+    verify(view).showError(error)
+
+    verify(view, never()).showResults(any())
+    verify(view, never()).showProgress(true)
+    verify(view, never()).showSilentProgress(true)
+  }
 }
