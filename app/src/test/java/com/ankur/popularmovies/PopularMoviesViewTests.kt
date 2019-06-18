@@ -58,4 +58,22 @@ class PopularMoviesViewTests {
     verify(view, never()).showProgress(true)
     verify(view, never()).showSilentProgress(true)
   }
+
+  @Test fun `network fetching is successful and UI displays a list`() {
+    // act
+    val movies = listOf(
+        Movie(1, "asd", "asda")
+    )
+
+    view.render(PopularMoviesState(FetchAction.FETCH_SUCCESSFUL, movies, emptyList(), null))
+
+    // assert
+    verify(view).showProgress(false)
+    verify(view).showSilentProgress(false)
+    verify(view).showResults(movies)
+
+    verify(view, never()).showError(any())
+    verify(view, never()).showProgress(true)
+    verify(view, never()).showSilentProgress(true)
+  }
 }
