@@ -27,4 +27,20 @@ class PopularMoviesViewTests {
     verify(view, never()).showError(any())
     verify(view, never()).showResults(any())
   }
+
+  @Test fun `cache has data, show results while silent loading`() {
+    // act
+    val movies = listOf(
+        Movie(1, "asd", "asda")
+    )
+    view.render(PopularMoviesState(FetchAction.IN_PROGRESS, movies, emptyList(), null))
+
+    // assert
+    verify(view).showResults(movies)
+    verify(view).showSilentProgress(true)
+    verify(view, never()).showSilentProgress(false)
+    verify(view, never()).showProgress(true)
+    verify(view, never()).showProgress(false)
+    verify(view, never()).showError(any())
+  }
 }

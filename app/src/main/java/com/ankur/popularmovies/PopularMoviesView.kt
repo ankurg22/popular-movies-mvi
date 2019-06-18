@@ -7,7 +7,14 @@ import com.ankur.popularmovies._repository.Error
 interface PopularMoviesView {
   fun render(state: PopularMoviesState) {
     when (state.fetchAction) {
-      IN_PROGRESS -> showProgress(true)
+      IN_PROGRESS -> {
+        if (state.movies.isEmpty()) {
+          showProgress(true)
+        } else {
+          showResults(state.movies)
+          showSilentProgress(true)
+        }
+      }
     }
   }
 
