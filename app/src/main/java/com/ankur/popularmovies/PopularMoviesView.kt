@@ -25,15 +25,21 @@ interface PopularMoviesView {
       }
 
       FETCH_SUCCESSFUL -> {
-        showProgress(false)
-        showSilentProgress(false)
-        showResults(state.movies)
+        val hasMovies = state.searchedMovies.isNotEmpty() and state.movies.isNotEmpty()
+        if (hasMovies) {
+          showResults(state.searchedMovies)
+        } else {
+          showProgress(false)
+          showSilentProgress(false)
+          showResults(state.movies)
+        }
       }
     }
   }
 
   // View access
   fun showResults(movies: List<Movie>)
+
   fun showProgress(show: Boolean)
   fun showSilentProgress(show: Boolean)
   fun showError(error: Error)

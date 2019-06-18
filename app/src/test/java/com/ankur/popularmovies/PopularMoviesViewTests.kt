@@ -76,4 +76,26 @@ class PopularMoviesViewTests {
     verify(view, never()).showProgress(true)
     verify(view, never()).showSilentProgress(true)
   }
+
+  @Test fun `user search by movie name and UI displays a list`() {
+    // act
+    val movies = listOf(
+        Movie(2, "fdfas", "adfa"),
+        Movie(2, "fdfas", "adfa"),
+        Movie(2, "fdfas", "adfa")
+    )
+    val searchedMovies = listOf(
+        Movie(2, "fdfas", "adfa")
+    )
+    view.render(PopularMoviesState(FetchAction.FETCH_SUCCESSFUL, movies, searchedMovies, null))
+
+    // assert
+    verify(view).showResults(searchedMovies)
+
+    verify(view, never()).showProgress(true)
+    verify(view, never()).showProgress(false)
+    verify(view, never()).showSilentProgress(true)
+    verify(view, never()).showSilentProgress(false)
+    verify(view, never()).showError(any())
+  }
 }
