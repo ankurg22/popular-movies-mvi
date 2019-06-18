@@ -110,6 +110,9 @@ class PopularMoviesActivity : AppCompatActivity(), PopularMoviesView {
     progressBar.visibility = if (show) View.VISIBLE else View.GONE
   }
 
+  override fun showSilentProgress(show: Boolean) {
+  }
+
   override fun showError(error: Error) {
     val errorRes = when (error.type) {
       ErrorType.CONNECTION -> R.string.error_conncection
