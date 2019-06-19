@@ -114,6 +114,7 @@ import java.net.SocketTimeoutException
 
     movieDao.insertAll(movies)
 
+    // Act
     val repoObserver = repository
       .fetchMovies()
       .test()
