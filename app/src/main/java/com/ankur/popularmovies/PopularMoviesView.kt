@@ -10,9 +10,7 @@ interface PopularMoviesView {
   fun render(state: PopularMoviesState) {
     when (state.fetchAction) {
       IN_PROGRESS -> renderFetchInProgress(state)
-
       FETCH_FAILED -> renderFetchFailed(state)
-
       FETCH_SUCCESSFUL -> renderFetchSuccessful(state)
     }
   }
