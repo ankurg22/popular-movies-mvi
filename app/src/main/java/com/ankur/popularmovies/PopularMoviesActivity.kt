@@ -6,17 +6,10 @@ import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.ankur.popularmovies._db.PopularMoviesDatabase
 import com.ankur.popularmovies._http.Movie
-import com.ankur.popularmovies._http.MoviesApi
-import com.ankur.popularmovies._http.MoviesClient
 import com.ankur.popularmovies._mvi.MviLifecycle
 import com.ankur.popularmovies._repository.Error
 import com.ankur.popularmovies._repository.ErrorType
-import com.ankur.popularmovies._repository.PopularMoviesRepository
-import com.ankur.popularmovies._repository.PopularMoviesRepositoryImpl
-import com.ankur.popularmovies._repository.SchedulerProvider
-import com.ankur.popularmovies._repository.SchedulerProviderImpl
 import com.google.android.material.snackbar.Snackbar
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -42,9 +35,7 @@ class PopularMoviesActivity : AppCompatActivity(), PopularMoviesView {
   private val retryClicks = PublishSubject.create<Unit>()
   private val intentions by lazy { PopularMoviesIntentions(searchQueryChanges, retryClicks) }
 
-  private val moviesApi = MoviesClient.getInstance().create(MoviesApi::class.java)
-  private val schedulerProvider: SchedulerProvider by lazy { SchedulerProviderImpl() }
-  private val repository: PopularMoviesRepository by lazy { PopularMoviesRepositoryImpl(PopularMoviesDatabase.getInstance(this).build(), moviesApi, schedulerProvider) }
+  private val repository by lazy { MoviesApplication.appComponent().moviesRepository() }
 
   private val movieAdapter = MoviesAdapter(arrayListOf())
 
@@ -86,14 +77,14 @@ class PopularMoviesActivity : AppCompatActivity(), PopularMoviesView {
   override fun onStart() {
     super.onStart()
     PopularMoviesModel
-      .bind(lifecycle, repository, intentions, states)
-      .observeOn(AndroidSchedulers.mainThread())
-      .subscribe {
-        println(it)
-        states.onNext(it)
-        render(it)
-      }
-      .addTo(compositeDisposable)
+        .bind(lifecycle, repository, intentions, states)
+        .observeOn(AndroidSchedulers.mainThread())
+        .subscribe {
+          println(it)
+          states.onNext(it)
+          render(it)
+        }
+        .addTo(compositeDisposable)
 
     lifecycle.onNext(lifecycleEvent)
   }
@@ -131,9 +122,9 @@ class PopularMoviesActivity : AppCompatActivity(), PopularMoviesView {
 
   private fun showSnackBar(@StringRes stringRes: Int) {
     Snackbar.make(rootLayout, stringRes, Snackbar.LENGTH_INDEFINITE)
-      .setAction(R.string.action_retry) {
-        retryClicks.onNext(Unit)
-      }
-      .show()
+        .setAction(R.string.action_retry) {
+          retryClicks.onNext(Unit)
+        }
+        .show()
   }
 }
