@@ -9,10 +9,12 @@ import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.list_item_movie.view.movieNameTextView
 import kotlinx.android.synthetic.main.list_item_movie.view.posterImageView
 
-class MoviesAdapter(private val movies: ArrayList<Movie>) : RecyclerView.Adapter<MoviesAdapter.MoviesViewHolder>() {
+class MoviesAdapter : RecyclerView.Adapter<MoviesAdapter.MoviesViewHolder>() {
+  private val movies = mutableListOf<Movie>()
+
   override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MoviesViewHolder {
     val view = LayoutInflater.from(parent.context)
-      .inflate(R.layout.list_item_movie, parent, false)
+        .inflate(R.layout.list_item_movie, parent, false)
     return MoviesViewHolder(view)
   }
 
@@ -35,10 +37,10 @@ class MoviesAdapter(private val movies: ArrayList<Movie>) : RecyclerView.Adapter
     fun bindMovie(movie: Movie) {
       itemView.movieNameTextView.text = movie.title
       Picasso
-        .get()
-        .load("${BuildConfig.BASE_IMAGE_URL}${movie.poster}")
-        .placeholder(android.R.drawable.stat_sys_download)
-        .into(itemView.posterImageView)
+          .get()
+          .load("${BuildConfig.BASE_IMAGE_URL}${movie.poster}")
+          .placeholder(android.R.drawable.stat_sys_download)
+          .into(itemView.posterImageView)
     }
   }
 }

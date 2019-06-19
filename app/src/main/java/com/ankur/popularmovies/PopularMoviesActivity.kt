@@ -37,7 +37,7 @@ class PopularMoviesActivity : AppCompatActivity(), PopularMoviesView {
 
   private val repository by lazy { MoviesApplication.appComponent().moviesRepository() }
 
-  private val movieAdapter = MoviesAdapter(arrayListOf())
+  private val movieAdapter = MoviesAdapter()
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
