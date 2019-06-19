@@ -6,16 +6,19 @@ import com.ankur.popularmovies._di.AppModule
 import com.ankur.popularmovies._di.DaggerAppComponent
 
 class MoviesApplication : Application() {
-  companion object {
-    private lateinit var appComponent: AppComponent
-    fun appComponent(): AppComponent = appComponent
-  }
+  private lateinit var appComponent: AppComponent
 
   override fun onCreate() {
     super.onCreate()
-    appComponent = DaggerAppComponent
+    appComponent = initialiseDagger()
+  }
+
+  private fun initialiseDagger(): AppComponent {
+    return DaggerAppComponent
         .builder()
         .appModule(AppModule(this))
         .build()
   }
+
+  fun appComponent(): AppComponent = appComponent
 }

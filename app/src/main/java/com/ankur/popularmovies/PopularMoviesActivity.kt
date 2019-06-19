@@ -6,6 +6,7 @@ import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.ankur.popularmovies._di.AppComponent
 import com.ankur.popularmovies._http.Movie
 import com.ankur.popularmovies._mvi.MviLifecycle
 import com.ankur.popularmovies._repository.Error
@@ -35,7 +36,7 @@ class PopularMoviesActivity : AppCompatActivity(), PopularMoviesView {
   private val retryClicks = PublishSubject.create<Unit>()
   private val intentions by lazy { PopularMoviesIntentions(searchQueryChanges, retryClicks) }
 
-  private val repository by lazy { MoviesApplication.appComponent().moviesRepository() }
+  private val repository by lazy { AppComponent.obtain(this).moviesRepository() }
 
   private val movieAdapter = MoviesAdapter()
 
